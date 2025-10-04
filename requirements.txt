@@ -6,6 +6,7 @@ pillow
 pylatexenc
 pyyaml
 ray[default]
+skypilot[aws]
 torch
 transformers
 wandb

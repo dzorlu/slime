@@ -1,0 +1,118 @@
+name: slime-glm4-355b
+
+resources:
+  cloud: aws
+  accelerators: H100:8
+  use_spot: false
+
+num_nodes: 8
+
+file_mounts:
+  /slime_checkpoints:
+    name: slime-glm4-355b-checkpoints
+    store: s3
+    mode: MOUNT
+
+envs:
+  PYTHONPATH: /root/Megatron-LM/
+  CUDA_DEVICE_MAX_CONNECTIONS: "1"
+  NCCL_CUMEM_ENABLE: "0"
+  NCCL_IB_TC: "160"
+  NCCL_PXN_DISABLE: "0"
+  NCCL_IB_GID_INDEX: "3"
+  NCCL_NET_GDR_LEVEL: "4"
+  NCCL_IB_RETRY_CNT: "7"
+  NCCL_IB_TIMEOUT: "32"
+  NCCL_IB_QPS_PER_CONNECTION: "8"
+  NCCL_P2P_LEVEL: "NVL"
+  TORCH_NCCL_AVOID_RECORD_STREAMS: "1"
+  NCCL_NVLS_ENABLE: "0"
+  NCCL_MIN_CTAS: "4"
+  
+setup: |
+  set -ex
+  
+  cd /root
+  if [ ! -d "slime" ]; then
+    git clone https://github.com/THUDM/slime.git
+  else
+    cd slime && git pull && cd ..
+  fi
+  cd slime
+  pip install -e .
+  
+  if [ ! -d "/root/Megatron-LM" ]; then
+    git clone https://github.com/NVIDIA/Megatron-LM.git /root/Megatron-LM
+  fi
+  
+run: |
+  set -ex
+  
+  cd /root/slime
+  source scripts/models/glm4.5-355B-A32B.sh
+  
+  python train.py \
+    --actor-num-nodes 8 \
+    --actor-num-gpus-per-node 8 \
+    --colocate \
+    --hf-checkpoint /slime_checkpoints/GLM-4.5-355B-A32B \
+    --ref-load /slime_checkpoints/GLM-4.5-355B-A32B_torch_dist/ \
+    --prompt-data /slime_data/dapo-math-17k/dapo-math-17k.jsonl \
+    --input-key prompt \
+    --label-key label \
+    --apply-chat-template \
+    --rollout-shuffle \
+    --rm-type deepscaler \
+    --num-rollout 3000 \
+    --rollout-batch-size 128 \
+    --n-samples-per-prompt 8 \
+    --rollout-max-response-len 32768 \
+    --rollout-temperature 0.8 \
+    --over-sampling-batch-size 256 \
+    --dynamic-sampling-filter-path slime.rollout.filter_hub.dynamic_sampling_filters.check_reward_nonzero_std \
+    --num-steps-per-rollout 4 \
+    --balance-data \
+    --rollout-stop-token-ids 151329 151336 151338 \
+    --eval-interval 20 \
+    --eval-prompt-data aime /slime_data/aime-2024.jsonl \
+    --n-samples-per-eval-prompt 8 \
+    --eval-max-response-len 32768 \
+    --eval-top-p 0.7 \
+    --tensor-model-parallel-size 8 \
+    --sequence-parallel \
+    --pipeline-model-parallel-size 4 \
+    --context-parallel-size 2 \
+    --expert-model-parallel-size 16 \
+    --expert-tensor-parallel-size 1 \
+    --recompute-granularity full \
+    --recompute-method uniform \
+    --recompute-num-layers 1 \
+    --use-dynamic-batch-size \
+    --max-tokens-per-gpu 16384 \
+    --rollout-num-gpus-per-engine 32 \
+    --sglang-mem-fraction-static 0.7 \
+    --sglang-enable-dp-attention \
+    --sglang-dp-size 4 \
+    --advantage-estimator gspo \
+    --kl-loss-coef 0.00 \
+    --kl-loss-type low_var_kl \
+    --kl-coef 0.00 \
+    --entropy-coef 0.00 \
+    --eps-clip 1e-4 \
+    --eps-clip-high 2e-4 \
+    --use-tis \
+    --optimizer adam \
+    --lr 1e-6 \
+    --lr-decay-style constant \
+    --weight-decay 0.1 \
+    --adam-beta1 0.9 \
+    --adam-beta2 0.98 \
+    --optimizer-cpu-offload \
+    --overlap-cpu-optimizer-d2h-h2d \
+    --use-precision-aware-optimizer \
+    --attention-dropout 0.0 \
+    --hidden-dropout 0.0 \
+    --accumulate-allreduce-grads-in-fp32 \
+    --attention-softmax-in-fp32 \
+    --attention-backend flash \
+    ${MODEL_ARGS[@]}

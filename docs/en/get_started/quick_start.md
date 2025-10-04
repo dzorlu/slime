@@ -568,3 +568,77 @@ slime has been deeply optimized for distributed training of large-scale Mixture 
 
 - [Example: 64xH100 Training GLM-4.5](models/glm4.5-355B-A32B.md)
 - [Example: 128xH100 Training DeepSeek-R1](models/deepseek-r1.md)
+
+## Running with SkyPilot (Optional)
+
+For users who want to leverage cloud infrastructure for training, slime now supports SkyPilot for automated cluster provisioning and management. SkyPilot provides:
+
+- **Automated infrastructure**: Provision clusters on AWS, GCP, or Azure with a single command
+- **Ray cluster setup**: Automatic Ray head and worker node coordination
+- **Checkpoint persistence**: Sync checkpoints to cloud storage (S3, GCS, Azure Blob)
+- **Cost optimization**: Use spot instances and autostop to reduce costs
+- **Multi-cloud support**: Easily switch between cloud providers
+
+### Quick Start with SkyPilot
+
+1. **Install SkyPilot:**
+   ```bash
+   pip install "skypilot[aws]"  # or [gcp], [azure]
+   ```
+
+2. **Configure cloud credentials:**
+   ```bash
+   # For AWS
+   aws configure
+   
+   # For GCP
+   gcloud auth application-default login
+   
+   # For Azure
+   az login
+   ```
+
+3. **Launch a training job:**
+   ```bash
+   # Using a pre-configured example
+   sky launch -c slime-training sky_configs/examples/train_glm4_9b.yaml
+   
+   # Or using the helper script
+   ./scripts/sky_launch.sh sky_configs/examples/train_glm4_9b.yaml
+   ```
+
+4. **Monitor your training:**
+   ```bash
+   # View cluster status
+   sky status
+   
+   # View training logs
+   sky logs slime-training --follow
+   
+   # SSH into the cluster
+   sky ssh slime-training
+   ```
+
+### Key Benefits
+
+| Manual Setup | With SkyPilot |
+|-------------|--------------|
+| Manual Ray cluster setup | Automatic Ray provisioning |
+| SSH to each worker node | Automatic worker coordination |
+| Manual checkpoint management | Automatic cloud storage sync |
+| Manual cost tracking | Built-in cost optimization |
+
+### Documentation
+
+For detailed SkyPilot usage instructions, see:
+- [SkyPilot Configuration Guide](../../../sky_configs/README.md)
+- [Migration Guide from Manual Setup](skypilot_migration.md)
+
+### Example Configurations
+
+The repository includes pre-configured YAML files for different model sizes:
+- `sky_configs/examples/train_glm4_9b.yaml` - Single-node GLM-4 9B training
+- `sky_configs/examples/train_glm4_355b.yaml` - Multi-node GLM-4.5 355B training
+- `sky_configs/train.yaml` - Generic configurable template
+
+You can customize these configurations or create your own based on your training requirements.
