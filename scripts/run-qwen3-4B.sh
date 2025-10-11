@@ -122,7 +122,7 @@ MISC_ARGS=(
 # launch the master node of ray in container
 export MASTER_ADDR=${MASTER_ADDR:-"127.0.0.1"}
 ray start --head --node-ip-address ${MASTER_ADDR} --num-gpus 8 \
-  --object-store-memory 12g \
+  --object-store-memory 12884901888 \
   --disable-usage-stats \
   --system-config='{"num_prestart_python_workers":0}' \
   --dashboard-host=0.0.0.0 --dashboard-port=8265
