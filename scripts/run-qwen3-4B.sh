@@ -121,7 +121,11 @@ MISC_ARGS=(
 
 # launch the master node of ray in container
 export MASTER_ADDR=${MASTER_ADDR:-"127.0.0.1"}
-ray start --head --node-ip-address ${MASTER_ADDR} --num-gpus 8 --disable-usage-stats --dashboard-host=0.0.0.0 --dashboard-port=8265
+ray start --head --node-ip-address ${MASTER_ADDR} --num-gpus 8 \
+  --object-store-memory 12g \
+  --disable-usage-stats \
+  --system-config='{"num_prestart_python_workers":0}' \
+  --dashboard-host=0.0.0.0 --dashboard-port=8265
 
 # Build the runtime environment JSON with proper variable substitution
 RUNTIME_ENV_JSON="{
@@ -132,6 +136,19 @@ RUNTIME_ENV_JSON="{
   }
 }"
 
+# Wait for dashboard and Jobs API to be ready (inside the container)
+for i in {1..60}; do
+  if curl -sf http://127.0.0.1:8265/api/version >/dev/null && \
+     curl -sf http://127.0.0.1:8265/api/jobs/ >/dev/null; then
+    echo "Ray dashboard/Jobs API is ready..."
+    break
+  fi
+  echo "Waiting for Ray dashboard/Jobs API to be ready..."
+  sleep 1
+done
+
+
+sleep 60
 ray job submit --address="http://127.0.0.1:8265" \
    --runtime-env-json="${RUNTIME_ENV_JSON}" \
    -- python3 train.py \
