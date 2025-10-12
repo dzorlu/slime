@@ -11,6 +11,11 @@ def train(args):
     pgs = create_placement_groups(args)
     wandb_run_id = init_wandb_primary(args)
 
+    if args.use_tensorboard:
+        from slime.utils.tensorboard_utils import _TensorboardAdapter
+
+        _TensorboardAdapter(args)
+
     # create the actor and critic models
     actor_model, critic_model = create_training_models(args, pgs, wandb_run_id=wandb_run_id)
 
@@ -79,6 +84,8 @@ def train(args):
             or (num_rollout_per_epoch is not None and (rollout_id + 1) % num_rollout_per_epoch == 0)
         ):
             ray.get(rollout_manager.eval.remote(rollout_id))
+
+    ray.get(rollout_manager.dispose.remote())
 
 
 if __name__ == "__main__":
