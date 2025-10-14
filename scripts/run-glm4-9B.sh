@@ -15,7 +15,22 @@ set -ex
 # will prevent ray from buffering stdout/stderr
 export PYTHONBUFFERED=16
 
-NVLINK_COUNT=$(nvidia-smi topo -m 2>/dev/null | grep -o 'NV[0-9][0-9]*' | wc -l)
+# Detect NVLink with a hard timeout; default to 0 if it hangs/unavailable
+NVLINK_TOPO="$(timeout 10s nvidia-smi topo -m 2>/dev/null || true)"
+if [ -n "$NVLINK_TOPO" ]; then
+  NVLINK_COUNT="$(echo "$NVLINK_TOPO" | grep -o 'NV[0-9][0-9]*' | wc -l || echo 0)"
+else
+  NVLINK_COUNT=0
+  echo -e "\e[31m\e[1m"
+  echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+  echo "!! WARNING: nvidia-smi topo -m unavailable or timed out.   !!"
+  echo "!! Proceeding without NVLink optimizations. This may       !!"
+  echo "!! slightly impact performance but is otherwise safe.        !!"
+  echo "!! If this persists, consider rebooting the node.            !!"
+  echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+  echo -e "\e[0m"
+fi
+
 if [ "$NVLINK_COUNT" -gt 0 ]; then
     HAS_NVLINK=1
 else
@@ -29,8 +44,8 @@ source "${SCRIPT_DIR}/models/glm4-9B.sh"
 CKPT_ARGS=(
    --hf-checkpoint /root/GLM-Z1-9B-0414/
    --ref-load /root/GLM-Z1-9B-0414_torch_dist
-   --load /root/GLM-Z1-9B-0414_slime/
-   --save /root/GLM-Z1-9B-0414_slime/
+   --load /workspace/checkpoints/
+   --save /workspace/checkpoints/
    --save-interval 20
 )
 
@@ -40,9 +55,7 @@ ROLLOUT_ARGS=(
    --label-key label
    --apply-chat-template
    --rollout-shuffle
-
    --rm-type deepscaler
-
    --num-rollout 3000
    --rollout-batch-size 32
    --n-samples-per-prompt 8
@@ -98,14 +111,20 @@ OPTIMIZER_ARGS=(
 )
 
 WANDB_ARGS=(
-   #--use-wandb
-   # --wandb-project slime-dev
-   # --wandb-group qwen3-4B-test
-   # --wandb-key ${WANDB_KEY}
+   --use-wandb
+   --wandb-project slime-dev
+   --wandb-group glm4-9B-test
+   --wandb-key ${WANDB_KEY}
 )
 
 SGLANG_ARGS=(
    --rollout-num-gpus-per-engine 2
+   --sglang-mem-fraction-static 0.7
+)
+
+DEBUG_ARGS=(
+   --sglang-enable-metrics
+   --save-debug-rollout-data /workspace/debug_rollouts/rollout_{rollout_id}.pt
 )
 
 MISC_ARGS=(
@@ -121,7 +140,10 @@ MISC_ARGS=(
 
 # launch the master node of ray in container
 export MASTER_ADDR=${MASTER_ADDR:-"127.0.0.1"}
-ray start --head --node-ip-address ${MASTER_ADDR} --num-gpus 8 --disable-usage-stats --dashboard-host=0.0.0.0 --dashboard-port=8265
+ray start --head --node-ip-address ${MASTER_ADDR} --num-gpus 8 \
+  --object-store-memory 12884901888 \
+  --disable-usage-stats \
+  --dashboard-host=0.0.0.0 --dashboard-port=8265
 
 # Build the runtime environment JSON with proper variable substitution
 RUNTIME_ENV_JSON="{
@@ -132,12 +154,25 @@ RUNTIME_ENV_JSON="{
   }
 }"
 
+# Wait for dashboard and Jobs API to be ready (inside the container)
+for i in {1..60}; do
+  if curl -sf http://127.0.0.1:8265/api/version >/dev/null && \
+     curl -sf http://127.0.0.1:8265/api/jobs/ >/dev/null; then
+    echo "Ray dashboard/Jobs API is ready..."
+    break
+  fi
+  echo "Waiting for Ray dashboard/Jobs API to be ready..."
+  sleep 1
+done
+
+
+sleep 60
 ray job submit --address="http://127.0.0.1:8265" \
    --runtime-env-json="${RUNTIME_ENV_JSON}" \
    -- python3 train.py \
    --actor-num-nodes 1 \
-   --actor-num-gpus-per-node 4 \
-   --rollout-num-gpus 4 \
+   --actor-num-gpus-per-node 8 \
+   --colocate \
    ${MODEL_ARGS[@]} \
    ${CKPT_ARGS[@]} \
    ${ROLLOUT_ARGS[@]} \
@@ -147,4 +182,5 @@ ray job submit --address="http://127.0.0.1:8265" \
    ${PERF_ARGS[@]} \
    ${EVAL_ARGS[@]} \
    ${SGLANG_ARGS[@]} \
+   ${DEBUG_ARGS[@]} \
    ${MISC_ARGS[@]}
