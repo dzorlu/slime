@@ -84,11 +84,11 @@ PERF_ARGS=(
 
    --recompute-granularity full
    --recompute-method uniform
-   --recompute-num-layers 1
+   --recompute-num-layers 2
 
    # --micro-batch-size 1
    --use-dynamic-batch-size
-   --max-tokens-per-gpu 4608
+   --max-tokens-per-gpu 4096
 )
 
 GRPO_ARGS=(
@@ -119,7 +119,7 @@ WANDB_ARGS=(
 
 SGLANG_ARGS=(
    --rollout-num-gpus-per-engine 2
-   --sglang-mem-fraction-static 0.7
+   --sglang-mem-fraction-static 0.65
 )
 
 DEBUG_ARGS=(
@@ -133,7 +133,7 @@ MISC_ARGS=(
    --hidden-dropout 0.0
    # should be good for model performance
    #--accumulate-allreduce-grads-in-fp32
-   --attention-softmax-in-fp32
+   #--attention-softmax-in-fp32
    # need to comment this when using model with MLA
    --attention-backend flash
 )
