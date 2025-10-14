@@ -132,7 +132,7 @@ MISC_ARGS=(
    --attention-dropout 0.0
    --hidden-dropout 0.0
    # should be good for model performance
-   --accumulate-allreduce-grads-in-fp32
+   #--accumulate-allreduce-grads-in-fp32
    --attention-softmax-in-fp32
    # need to comment this when using model with MLA
    --attention-backend flash
