@@ -1,0 +1,6 @@
+# Head node must be the first line; subsequent lines are workers.
+head-node-0
+worker-node-1
+worker-node-2
+
+
