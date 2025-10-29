@@ -56,3 +56,13 @@ Notes
 - Ray dashboard available at `http://<head-ip>:8265` (if firewall allows)
 
 
+TODO
+----
+- Create a new bash script and replace `scripts/run-glm4-9B.sh` that uses the TIM model and does async training.
+- Wire up the dataset.
+- Run single-node training as POC.
+- Run multi-node training
+- Wire in the async rollout for SGLANG
+
+
+
