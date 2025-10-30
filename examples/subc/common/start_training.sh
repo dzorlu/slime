@@ -16,7 +16,7 @@ fi
 echo "[start_training] MASTER_ADDR=${MASTER_ADDR}"
 
 # Launch training and log to /root/train.out
-bash scripts/run-glm4-9B.sh &> /root/train.out &
+bash scripts/run-tim.sh &> /root/train.out &
 echo $! > /root/train.pid
 echo "[start_training] Launched PID $(cat /root/train.pid)"
 
