@@ -29,6 +29,12 @@ docker run --rm --gpus all --privileged --ipc=host --shm-size=128g \
   --tmpfs /tmp:exec,size=64g \
   --ulimit memlock=-1 --ulimit stack=67108864 \
   -v "${WORKDIR_MOUNT}":/workspace \
+  -e HF_MODEL_REPO \
+  -e HF_MODEL_DIR \
+  -e DATASET_REPO \
+  -e DATASET_DIR \
+  -e EVAL_DATASET_REPO \
+  -e EVAL_DATASET_DIR \
   -e WANDB_KEY="${WANDB_KEY}" \
   --name "${CONTAINER_NAME}" \
   "${IMAGE}" sleep infinity &

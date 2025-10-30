@@ -4,8 +4,12 @@ set -euo pipefail
 # Single-node launcher without Slurm, using Ray inside Docker.
 
 IMAGE=${IMAGE:-slimerl/slime:latest}
-WORKDIR_MOUNT=${WORKDIR_MOUNT:-$PWD}
-COMMON_DIR=/workspace/subc/common
+
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+REPO_ROOT=$(cd "${SCRIPT_DIR}/../../.." && pwd)
+COMMON_DIR=/workspace/examples/subc/common
+MOUNTED_PATH=/lambda/nfs/fs-us-south-3
+
 CONTAINER_NAME=slime-ray-1n-$$
 WANDB_KEY=${WANDB_KEY:-}
 
@@ -16,7 +20,8 @@ echo "[ray-1n] Starting container ${CONTAINER_NAME}"
 docker run --rm --gpus all --privileged --ipc=host --shm-size=128g \
   --tmpfs /tmp:exec,size=64g \
   --ulimit memlock=-1 --ulimit stack=67108864 \
-  -v "${WORKDIR_MOUNT}":/workspace \
+  -v "${REPO_ROOT}":/workspace \
+  -v "${MOUNTED_PATH}":/lambda/nfs \
   -e WANDB_KEY="${WANDB_KEY}" \
   --name "${CONTAINER_NAME}" \
   "$IMAGE" sleep infinity &
