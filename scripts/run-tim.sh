@@ -119,7 +119,8 @@ WANDB_ARGS=(
 )
 
 SGLANG_ARGS=(
-   --rollout-num-gpus-per-engine 2
+   --rollout-num-gpus 1
+   --rollout-num-gpus-per-engine 1
    --sglang-mem-fraction-static 0.65
 )
 
@@ -173,8 +174,6 @@ ray job submit --address="http://127.0.0.1:8265" \
    -- python3 train_async.py \
    --actor-num-nodes 1 \
    --actor-num-gpus-per-node 1 \
-   --rollout-num-gpus 1 \
-   --rollout-num-gpus-per-engine 1 \
    ${MODEL_ARGS[@]} \
    ${CKPT_ARGS[@]} \
    ${ROLLOUT_ARGS[@]} \
