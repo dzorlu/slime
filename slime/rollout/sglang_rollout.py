@@ -81,7 +81,6 @@ class GenerateState(metaclass=SingletonMeta):
             )
         self.remaining_batch_size += len(samples)
 
-
 async def generate(args: Namespace, sample: Sample, sampling_params: dict[str, Any]) -> Sample:
     """Generate using traditional SGLang router with token-based workflow"""
     state = GenerateState(args)
