@@ -17,7 +17,7 @@ else
 fi
 
 pip install -e .
-pip install -U huggingface_hub
+pip install "huggingface-hub<1.0" --upgrade
 pip install datasets
 
 download_repo() {
