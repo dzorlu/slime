@@ -114,7 +114,7 @@ OPTIMIZER_ARGS=(
 WANDB_ARGS=(
    --use-wandb
    --wandb-project slime-dev
-   --wandb-group 
+   --wandb-group test-timm
    --wandb-key ${WANDB_KEY}
 )
 
