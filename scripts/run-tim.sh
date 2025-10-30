@@ -59,12 +59,12 @@ ROLLOUT_ARGS=(
    --apply-chat-template
    --rollout-shuffle
    --rm-type deepscaler
-   --num-rollout 3000
-   --rollout-batch-size 32
-   --n-samples-per-prompt 8
+   --num-rollout 10
+   --rollout-batch-size 4
+   --n-samples-per-prompt 2
    --rollout-max-response-len 8192
    --rollout-temperature 0.8
-   --global-batch-size 256
+   --global-batch-size 8 # (rollout-batch-size × n-samples-per-prompt) = (global-batch-size × num-steps-per-rollout)
    --balance-data
 )
 
@@ -112,6 +112,7 @@ OPTIMIZER_ARGS=(
 )
 
 WANDB_ARGS=(
+   --wandb-mode online
    --use-wandb
    --wandb-project slime-dev
    --wandb-group test-tim

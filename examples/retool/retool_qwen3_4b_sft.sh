@@ -80,6 +80,7 @@ OPTIMIZER_ARGS=(
 )
 
 WANDB_ARGS=(
+   --wandb-mode online
    --use-wandb
    --wandb-project slime-dev
    --wandb-group qwen3-4B-base-sft
