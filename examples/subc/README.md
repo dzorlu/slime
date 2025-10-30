@@ -3,6 +3,8 @@ Slime on Lambda/Slurm
 
 Slurm launch scripts for slime RL training using Docker. Mirrors the workflow from `skypilot/llm/slime/slime.yaml`.
 
+
+
 Files
 -----
 
@@ -18,15 +20,27 @@ Prerequisites
 - Docker installed and accessible
 - Optional: Set `WANDB_KEY` environment variable
 
+```
+sudo usermod -aG docker $USER
+newgrp docker
+```
+
 Usage
 -----
 
 From the repo root:
+```
+git clone https://github.com/dzorlu/slime.git
+git checkout deniz/tim_async_rollout
+chmod +x examples/subc/ray/single_node.sh
+```
 
 ```bash
 # Single node
-export WANDB_KEY=<your-key>  # optional
+export WANDB_KEY=<your-key>
 sbatch slime/examples/subc/slime_single_node.sbatch
+# w/o slurm
+./examples/subc/ray/single_node.sh
 
 # Multi-node (adjust -N and --gpus-per-node in script as needed)
 sbatch slime/examples/subc/slime_multi_node.sbatch

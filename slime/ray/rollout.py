@@ -489,6 +489,11 @@ def _log_rollout_data(rollout_id, args, samples, rollout_extra_metrics, rollout_
     response_lengths = [
         sum(sample.loss_mask) if sample.loss_mask is not None else sample.response_length for sample in samples
     ]
+    if hasattr(samples[0], "entropy") and samples[0].entropy is not None:
+        all_entropies = [e for sample in samples if sample.entropy for e in sample.entropy]
+        if all_entropies:
+            log_dict["rollout/entropy"] = sum(all_entropies) / len(all_entropies)
+
     log_dict["perf/rollout_time"] = rollout_time
     if args.rollout_num_gpus:
         log_dict["perf/tokens_per_gpu_per_sec"] = sum(response_lengths) / rollout_time / args.rollout_num_gpus
