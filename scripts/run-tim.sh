@@ -128,7 +128,7 @@ SGLANG_ARGS=(
 
 DEBUG_ARGS=(
    --sglang-enable-metrics
-   --save-debug-rollout-data /workspace/debug_rollouts/rollout_{rollout_id}.pt
+   --save-debug-rollout-data /lambda/nfs/rollout_{rollout_id}.pt
 )
 
 MISC_ARGS=(
