@@ -115,6 +115,8 @@ async def generate(args: Namespace, sample: Sample, sampling_params: dict) -> Sa
     meta_info = output.get("meta_info", {})
     token_logprobs = meta_info.get("output_token_logprobs", [])
     topk_all_steps = meta_info.get("output_top_logprobs")
+    print(f"{token_logprobs=}")
+    print(f"{topk_all_steps=}")
 
     def _entropy_from_topk(candidates: Optional[List[List]]) -> float:
         if not candidates:
