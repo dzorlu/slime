@@ -72,4 +72,8 @@ Notes
 
 TODO
 ----
-- Create a new bash script and replace `
+- Run single-node training as POC - on actual data and small model.
+- Run multi-node training
+
+
+
