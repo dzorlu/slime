@@ -2,6 +2,7 @@ import json
 from argparse import Namespace
 from typing import List, Optional
 
+import os
 import math
 import torch
 from pydantic import BaseModel, Field
@@ -115,6 +116,13 @@ async def generate(args: Namespace, sample: Sample, sampling_params: dict) -> Sa
     meta_info = output.get("meta_info", {})
     token_logprobs = meta_info.get("output_token_logprobs", [])
     topk_all_steps = meta_info.get("output_top_logprobs")
+
+    # Optional verbose debug controlled by env var: SLIME_DEBUG_TOPK=1
+    _dbg = os.getenv("SLIME_DEBUG_TOPK", "0") == "1"
+    if _dbg:
+        print("[topk] meta_info keys:", sorted(list(meta_info.keys())))
+        print("[topk] has output_token_logprobs:", bool(token_logprobs), "len=", len(token_logprobs))
+        print("[topk] has output_top_logprobs:", bool(topk_all_steps), "len=", (len(topk_all_steps) if topk_all_steps else 0))
     print(f"{token_logprobs=}")
     print(f"{topk_all_steps=}")
 
@@ -143,6 +151,10 @@ async def generate(args: Namespace, sample: Sample, sampling_params: dict) -> Sa
             new_response_tokens.append(tok_id)
             candidates = topk_all_steps[step] if topk_all_steps and step < len(topk_all_steps) else None
             new_entropies.append(_entropy_from_topk(candidates))
+            if _dbg and step < 5:
+                # Print a compact view of this step
+                c0 = candidates[0] if candidates else None
+                print(f"[topk] step={step:02d} lp={lp} tok_id={tok_id} tok_text={tok_text!r} cand0={c0}")
 
         # Update sample with new data
         sample.tokens.extend(new_response_tokens)
