@@ -4,8 +4,7 @@ set -euo pipefail
 # Single-node launcher without Slurm, using Ray inside Docker.
 
 #IMAGE=${IMAGE:-slimerl/slime:latest}
-#IMAGE=${IMAGE:-slimerl/slime:v0.2.0}
-IMAGE=${IMAGE:-slimerl/slime:sglang-v0.4.5-cu125}
+IMAGE=${IMAGE:-slimerl/slime:sglang v0.5.0rc0-cu126}
 
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 REPO_ROOT=$(cd "${SCRIPT_DIR}/../../.." && pwd)
