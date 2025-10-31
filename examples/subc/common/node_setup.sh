@@ -47,13 +47,11 @@ download_repo model SubconsciousDev/TIM-8b-long-grpo /lambda/nfs/models/TIM-8b-l
 wait
 
 # Convert weights (save alongside default symlinked path)
-MODEL_TORCH_DIR=/root/model_torch_dist
+MODEL_TORCH_DIR=/lambda/nfs/models/model_torch_dist
 if [ -d "$MODEL_TORCH_DIR" ]; then
   echo "[node_setup] Skipping weight conversion; found ${MODEL_TORCH_DIR}"
 else
   source scripts/models/tim-8B.sh
-  echo "[node_setup] ls /lambda/nfs/models/TIM-8b-long-grpo"
-  ls -la /lambda/nfs/models/TIM-8b-long-grpo || true
   PYTHONPATH=/root/Megatron-LM python tools/convert_hf_to_torch_dist.py \
     ${MODEL_ARGS[@]} \
     --hf-checkpoint /lambda/nfs/models/TIM-8b-long-grpo \
