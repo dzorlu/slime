@@ -40,7 +40,7 @@ download_repo() {
 }
 
 #download_repo dataset zhuzilin/dapo-math-17k /lambda/nfs/dapo-math-17k &
-download_repo dataset zhuzilin/OpenR1-Math-220k /lambda/nfs/OpenR1-Math-220k &
+download_repo dataset mitroitskii/OpenR1-Math-220k-formatted /lambda/nfs/OpenR1-Math-220k-formatted &
 download_repo dataset zhuzilin/aime-2024 /lambda/nfs/aime-2024 &
 #download_repo model Qwen/Qwen3-0.6B /lambda/nfs/models/Qwen3-0.6B &
 download_repo model SubconsciousDev/TIM-8b-long-grpo /lambda/nfs/models/TIM-8b-long-grpo &

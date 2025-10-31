@@ -50,12 +50,12 @@ CKPT_ARGS=(
 )
 
 ROLLOUT_ARGS=(
-   --prompt-data /lambda/nfs/OpenR1-Math-220k
+   --prompt-data /lambda/nfs/OpenR1-Math-220k-formatted
    --input-key problem
    --label-key answer
    --apply-chat-template
    --rollout-shuffle
-   --rm-type deepscaler
+   --rm-type math # accepts a boxed answer anywhere in the response.
    --num-rollout 10
    --rollout-batch-size 4
    --n-samples-per-prompt 2
@@ -125,7 +125,7 @@ SGLANG_ARGS=(
 
 DEBUG_ARGS=(
    --sglang-enable-metrics
-   --save-debug-rollout-data /lambda/nfs/{run_id}/rollout_{rollout_id}.pt
+   --save-debug-rollout-data /lambda/nfs/rollouts/{run_id}/rollout_{rollout_id}.pt
 )
 
 MISC_ARGS=(
