@@ -44,18 +44,15 @@ source "${SCRIPT_DIR}/models/tim-8B.sh"
 CKPT_ARGS=(
    --hf-checkpoint SubconsciousDev/TIM-8b-long-grpo
    --ref-load /lambda/nfs/models/model_torch_dist
-   --load /workspace/checkpoints/
-   --save /workspace/checkpoints/
+   --load /lambda/nfs/checkpoints/
+   --save /lambda/nfs/checkpoints/
    --save-interval 20
 )
 
 ROLLOUT_ARGS=(
-   # --prompt-data /root/OpenR1-Math-220k/
-   # --input-key problem
-   # --label-key answer
-   --prompt-data /lambda/nfs/dapo-math-17k/dapo-math-17k.jsonl
-   --input-key prompt
-   --label-key label
+   --prompt-data /lambda/nfs/OpenR1-Math-220k
+   --input-key problem
+   --label-key answer
    --apply-chat-template
    --rollout-shuffle
    --rm-type deepscaler
