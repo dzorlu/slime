@@ -506,6 +506,7 @@ def policy_loss_function(
         "loss": loss.clone().detach(),
         "pg_loss": pg_loss.clone().detach(),
         "entropy_loss": entropy_loss.clone().detach(),
+        "policy_entropy": entropy.mean().clone().detach(),  # mean per token
         "pg_clipfrac": pg_clipfrac.clone().detach(),
         "ppo_kl": ppo_kl.clone().detach(),
     }

@@ -20,7 +20,7 @@ pip install -e .
 pip install "huggingface-hub<1.0" --upgrade
 pip install datasets
 pip install -U sglang
-pip install -U "sglang-router>=0.2.2"
+pip install -U sglang-router==0.2.2
 
 download_repo() {
   local kind="$1"
