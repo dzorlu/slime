@@ -56,6 +56,7 @@ else
     ${MODEL_ARGS[@]} \
     --hf-checkpoint /lambda/nfs/models/TIM-8b-long-grpo \
     --tokenizer-model Qwen/Qwen3-8B \
+    --tokenizer-type HuggingFaceTokenizer \
     --save "$MODEL_TORCH_DIR"
 fi
 
