@@ -67,16 +67,9 @@ Notes
 - All setup/training steps run via `docker exec` into these containers
 - Default `scripts/run-glm4-9B.sh` uses `--actor-num-nodes 1` and `--colocate` (single-node training)
 - For true multi-node actor training, modify the script to use `--actor-num-nodes ${SLURM_NNODES}`
-- Ray dashboard available at `http://<head-ip>:8265` (if firewall allows)
-
+- Ray dashboard available at `<head-ip>:8265` (if firewall allows)
+- Debug rollout data is saved to `/lambda/nfs/{run_id}/rollout_{rollout_id}.pt` if enabled in the training script.
 
 TODO
 ----
-- Create a new bash script and replace `scripts/run-glm4-9B.sh` that uses the TIM model and does async training.
-- Wire up the dataset.
-- Run single-node training as POC.
-- Run multi-node training
-- Wire in the async rollout for SGLANG
-
-
-
+- Create a new bash script and replace `
