@@ -113,7 +113,6 @@ async def generate(args: Namespace, sample: Sample, sampling_params: dict) -> Sa
     output = await post(url, payload)
 
     # --- INJECTION POINT FOR ENTROPY CALCULATION ---
-    # --- INJECTION POINT FOR ENTROPY CALCULATION ---
     meta_info = output.get("meta_info", {})
     token_logprobs = meta_info.get("output_token_logprobs", [])
     topk_all_steps = meta_info.get("output_top_logprobs") or []
@@ -155,7 +154,7 @@ async def generate(args: Namespace, sample: Sample, sampling_params: dict) -> Sa
             new_entropies.append(H)
             
             cand0 = topk_all_steps[step][0] if step < len(topk_all_steps) and topk_all_steps[step] else None
-            print(f"[topk] step={step:02d} lp={lp} tok_id={tok_id} tok_text={tok_text!r} H={H:.3f} cand0={cand0}")
+            #print(f"[topk] step={step:02d} lp={lp} tok_id={tok_id} tok_text={tok_text!r} H={H:.3f} cand0={cand0}")
 
         # Update sample with new data (unchanged behavior)
         sample.tokens.extend(new_response_tokens)
