@@ -7,20 +7,32 @@ set -euo pipefail
 HOSTFILE=
 GPUS_PER_NODE=8
 IMAGE=slimerl/slime:latest
-COMMON_DIR=/workspace/subc/common
+COMMON_DIR=/workspace/examples/subc/common
 WANDB_KEY=${WANDB_KEY:-}
+# Path to the slime repo on each remote host to mount at /workspace inside the container
+# Default assumes same username on remotes and repo at /home/$USER/slime
+REPO_PATH=${REPO_PATH:-/home/${USER}/slime}
+# Optional: host path to a shared dataset volume to mount at /lambda/nfs in the container
+NFS_PATH=${NFS_PATH:-}
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     -H|--hosts|--hostfile) HOSTFILE="$2"; shift 2;;
     --gpus-per-node) GPUS_PER_NODE="$2"; shift 2;;
     --image) IMAGE="$2"; shift 2;;
+    --repo|--repo-path) REPO_PATH="$2"; shift 2;;
+    --nfs|--nfs-path) NFS_PATH="$2"; shift 2;;
     *) echo "Unknown arg: $1"; exit 1;;
   esac
 done
 
 if [ -z "${HOSTFILE}" ] || [ ! -f "${HOSTFILE}" ]; then
   echo "Hostfile required. Use -H hosts.txt (head host must be first line)."; exit 1
+fi
+
+if [ -z "${WANDB_KEY}" ]; then
+  echo "WANDB_KEY must be set (required by node_setup.sh)" >&2
+  exit 1
 fi
 
 readarray -t HOSTS < "${HOSTFILE}"
@@ -38,12 +50,16 @@ echo "[ray-mn] Head: ${HEAD} (${HEAD_IP}) | Workers: ${WORKERS[*]:-none}"
 
 start_container() {
   local host="$1"; local name="$2";
+  local nfs_mount=""
+  if [ -n "${NFS_PATH}" ]; then
+    nfs_mount="-v ${NFS_PATH}:/lambda/nfs"
+  fi
   remote "$host" "docker pull ${IMAGE} && \
     docker run -d --rm --name ${name} \
       --gpus all --privileged --network host --ipc=host --shm-size=128g \
       --tmpfs /tmp:exec,size=64g \
       --ulimit memlock=-1 --ulimit stack=67108864 \
-      -v \$PWD:/workspace \
+      -v ${REPO_PATH}:/workspace ${nfs_mount} \
       -e WANDB_KEY=${WANDB_KEY} \
       ${IMAGE} sleep infinity"
 }
@@ -63,7 +79,9 @@ for w in "${WORKERS[@]}"; do
 done
 
 echo "[ray-mn] Starting training on head"
-exec_in "$HEAD" "$HEAD_CONT" "MASTER_ADDR=${HEAD_IP} bash ${COMMON_DIR}/start_training.sh"
+# Pass ACTOR_NUM_NODES to the training script to control multi-node usage
+NUM_NODES=${#HOSTS[@]}
+exec_in "$HEAD" "$HEAD_CONT" "MASTER_ADDR=${HEAD_IP} ACTOR_NUM_NODES=${NUM_NODES} bash ${COMMON_DIR}/start_training.sh"
 
 echo "[ray-mn] Waiting for Ray dashboard on head"
 for i in {1..120}; do

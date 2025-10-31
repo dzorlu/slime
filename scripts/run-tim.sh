@@ -39,10 +39,10 @@ fi
 echo "HAS_NVLINK: $HAS_NVLINK (detected $NVLINK_COUNT NVLink references)"
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
-source "${SCRIPT_DIR}/models/qwen3-0.6B.sh"
+source "${SCRIPT_DIR}/models/tim-8B.sh"
 
 CKPT_ARGS=(
-   --hf-checkpoint /lambda/nfs/models/Qwen3-0.6B
+   --hf-checkpoint SubconsciousDev/TIM-8b-long-grpo
    --ref-load /root/model_torch_dist/
    --load /workspace/checkpoints/
    --save /workspace/checkpoints/
@@ -77,7 +77,7 @@ EVAL_ARGS=(
 )
 
 PERF_ARGS=(
-   --tensor-model-parallel-size 1
+   --tensor-model-parallel-size 2
    --sequence-parallel
    --pipeline-model-parallel-size 1
    --context-parallel-size 1
@@ -121,7 +121,7 @@ WANDB_ARGS=(
 )
 
 SGLANG_ARGS=(
-   --rollout-num-gpus 1
+   --rollout-num-gpus 4
    --rollout-num-gpus-per-engine 1
    --sglang-mem-fraction-static 0.65
 )
@@ -174,8 +174,8 @@ sleep 60
 ray job submit --address="http://127.0.0.1:8265" \
    --runtime-env-json="${RUNTIME_ENV_JSON}" \
    -- python3 train_async.py \
-   --actor-num-nodes 1 \
-   --actor-num-gpus-per-node 1 \
+   --actor-num-nodes ${ACTOR_NUM_NODES:-1} \
+   --actor-num-gpus-per-node 4 \
    --custom-generate-function-path examples.subc.generate_with_constraint.generate \
    ${MODEL_ARGS[@]} \
    ${CKPT_ARGS[@]} \
