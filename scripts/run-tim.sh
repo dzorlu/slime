@@ -43,7 +43,7 @@ source "${SCRIPT_DIR}/models/tim-8B.sh"
 
 CKPT_ARGS=(
    --hf-checkpoint SubconsciousDev/TIM-8b-long-grpo
-   --ref-load /root/model_torch_dist/
+   --ref-load /lambda/nfs/models/model_torch_dist
    --load /workspace/checkpoints/
    --save /workspace/checkpoints/
    --save-interval 20
@@ -86,10 +86,10 @@ PERF_ARGS=(
 
    --recompute-granularity full
    --recompute-method uniform
-   --recompute-num-layers 16
+   --recompute-num-layers 2
 
    --use-dynamic-batch-size
-   --max-tokens-per-gpu 16384
+   --max-tokens-per-gpu 4096
 )
 
 GRPO_ARGS=(
