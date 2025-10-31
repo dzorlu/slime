@@ -51,10 +51,11 @@ MODEL_TORCH_DIR=/root/model_torch_dist
 if [ -d "$MODEL_TORCH_DIR" ]; then
   echo "[node_setup] Skipping weight conversion; found ${MODEL_TORCH_DIR}"
 else
-  source scripts/models/qwen3-0.6B.sh
+  source scripts/models/tim-8B.sh
   PYTHONPATH=/root/Megatron-LM python tools/convert_hf_to_torch_dist.py \
     ${MODEL_ARGS[@]} \
     --hf-checkpoint /lambda/nfs/models/TIM-8b-long-grpo \
+    --tokenizer-model Qwen/Qwen3-8B \
     --save "$MODEL_TORCH_DIR"
 fi
 
