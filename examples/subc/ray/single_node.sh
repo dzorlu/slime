@@ -29,6 +29,7 @@ CONTAINER_ID=$(docker run -d --rm --gpus all --privileged --ipc=host --shm-size=
   -v "${REPO_ROOT}":/workspace \
   -v "${MOUNTED_PATH}":/lambda/nfs \
   -e WANDB_KEY="${WANDB_KEY}" \
+  -e HUGGING_FACE_HUB_TOKEN="${HUGGING_FACE_HUB_TOKEN}" \
   --name "${CONTAINER_NAME}" \
   "$IMAGE" bash -lc 'sleep infinity')
 
