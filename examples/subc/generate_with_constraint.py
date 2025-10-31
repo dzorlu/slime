@@ -116,6 +116,7 @@ async def generate(args: Namespace, sample: Sample, sampling_params: dict) -> Sa
             new_response_log_probs.append(item[0])
             new_response_tokens.append(item[1])
             top_logprobs_dict = item[2]
+            print(top_logprobs_dict)
 
             if top_logprobs_dict:
                 log_probs = torch.tensor(list(top_logprobs_dict.values()), dtype=torch.float32)
