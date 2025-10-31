@@ -113,35 +113,37 @@ async def generate(args: Namespace, sample: Sample, sampling_params: dict) -> Sa
     output = await post(url, payload)
 
     # --- INJECTION POINT FOR ENTROPY CALCULATION ---
+    # --- INJECTION POINT FOR ENTROPY CALCULATION ---
     meta_info = output.get("meta_info", {})
     token_logprobs = meta_info.get("output_token_logprobs", [])
-    topk_all_steps = meta_info.get("output_top_logprobs")
+    topk_all_steps = meta_info.get("output_top_logprobs") or []
 
-    # Optional verbose debug controlled by env var: SLIME_DEBUG_TOPK=1
-    _dbg = os.getenv("SLIME_DEBUG_TOPK", "0") == "1"
-    if _dbg:
-        print("[topk] meta_info keys:", sorted(list(meta_info.keys())))
-        print("[topk] has output_token_logprobs:", bool(token_logprobs), "len=", len(token_logprobs))
-        print("[topk] has output_top_logprobs:", bool(topk_all_steps), "len=", (len(topk_all_steps) if topk_all_steps else 0))
-    print(f"{token_logprobs=}")
-    print(f"{topk_all_steps=}")
+    # Optional verbose debug controlled by env var: SLIME_DEBUG_TOPK=1   
+    print("[topk] meta_info keys:", sorted(list(meta_info.keys())))
+    print("[topk] has output_token_logprobs:", bool(token_logprobs), "len=", len(token_logprobs))
+    print("[topk] has output_top_logprobs:", bool(topk_all_steps), "len=", len(topk_all_steps))
 
     def _entropy_from_topk(candidates: Optional[List[List]]) -> float:
+        # candidates: [[logprob, token_id, token_text_or_None], ...]
         if not candidates:
             return 0.0
-        logps = [cand[0] for cand in candidates if cand and cand[0] is not None and math.isfinite(cand[0])]
-        if not logps:
+        # Filter None / non-finite logprobs (JSONed -inf → null)
+        vals = [c[0] for c in candidates if c and isinstance(c[0], (int, float)) and math.isfinite(c[0])]
+        if not vals:
             return 0.0
-        m = max(logps)
-        if not math.isfinite(m):
-            return 0.0
-        exps = [math.exp(lp - m) for lp in logps]
+        m = max(vals)
+        exps = [math.exp(v - m) for v in vals]
         z = sum(exps)
         if z <= 0:
             return 0.0
-        probs = [val / z for val in exps]
+        probs = [e / z for e in exps]
         return -sum(p * math.log(p) for p in probs if p > 0)
 
+    # NEW: precompute entropies directly from top-k for every step
+    entropies_by_step = [ _entropy_from_topk(cand_list) for cand_list in topk_all_steps ]
+
+    # Preserve your existing “chosen token + lp” handling,
+    # but source entropy from entropies_by_step (when available).
     if token_logprobs:
         new_response_tokens, new_response_log_probs, new_entropies = [], [], []
 
@@ -149,14 +151,13 @@ async def generate(args: Namespace, sample: Sample, sampling_params: dict) -> Sa
             lp, tok_id, tok_text = (item + [None, None, None])[:3]
             new_response_log_probs.append(lp)
             new_response_tokens.append(tok_id)
-            candidates = topk_all_steps[step] if topk_all_steps and step < len(topk_all_steps) else None
-            new_entropies.append(_entropy_from_topk(candidates))
+            H = entropies_by_step[step] if step < len(entropies_by_step) else 0.0
+            new_entropies.append(H)
             if _dbg and step < 5:
-                # Print a compact view of this step
-                c0 = candidates[0] if candidates else None
-                print(f"[topk] step={step:02d} lp={lp} tok_id={tok_id} tok_text={tok_text!r} cand0={c0}")
+                cand0 = topk_all_steps[step][0] if step < len(topk_all_steps) and topk_all_steps[step] else None
+                print(f"[topk] step={step:02d} lp={lp} tok_id={tok_id} tok_text={tok_text!r} H={H:.3f} cand0={cand0}")
 
-        # Update sample with new data
+        # Update sample with new data (unchanged behavior)
         sample.tokens.extend(new_response_tokens)
         sample.response_length += len(new_response_tokens)
         sample.response += output["text"]
@@ -169,6 +170,12 @@ async def generate(args: Namespace, sample: Sample, sampling_params: dict) -> Sa
             sample.entropy = []
         sample.entropy.extend(new_entropies)
 
+    else:
+        # If the server omitted chosen-token triples but gave us top-k,
+        # still expose the entropies with zero other side effects.
+        if sample.entropy is None:
+            sample.entropy = []
+        sample.entropy.extend(entropies_by_step)
     if "weight_version" in output["meta_info"]:
         sample.weight_versions.append(output["meta_info"]["weight_version"])
 
