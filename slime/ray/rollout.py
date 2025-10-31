@@ -33,6 +33,7 @@ class RolloutManager:
     def __init__(self, args, pg, wandb_run_id):
         self.args = args
         self.pg = pg
+        self.wandb_run_id = wandb_run_id
         _start_router(args)
         # TODO make args immutable
         init_wandb_secondary(
@@ -138,7 +139,7 @@ class RolloutManager:
     def _save_debug_rollout_data(self, data, rollout_id):
         # TODO to be refactored (originally Buffer._set_data)
         if (path_template := self.args.save_debug_rollout_data) is not None:
-            path = Path(path_template.format(rollout_id=rollout_id))
+            path = Path(path_template.format(rollout_id=rollout_id, run_id=self.wandb_run_id))
             print(f"Save debug rollout data to {path}")
             path.parent.mkdir(parents=True, exist_ok=True)
             torch.save(
