@@ -153,9 +153,9 @@ async def generate(args: Namespace, sample: Sample, sampling_params: dict) -> Sa
             new_response_tokens.append(tok_id)
             H = entropies_by_step[step] if step < len(entropies_by_step) else 0.0
             new_entropies.append(H)
-            if _dbg and step < 5:
-                cand0 = topk_all_steps[step][0] if step < len(topk_all_steps) and topk_all_steps[step] else None
-                print(f"[topk] step={step:02d} lp={lp} tok_id={tok_id} tok_text={tok_text!r} H={H:.3f} cand0={cand0}")
+            
+            cand0 = topk_all_steps[step][0] if step < len(topk_all_steps) and topk_all_steps[step] else None
+            print(f"[topk] step={step:02d} lp={lp} tok_id={tok_id} tok_text={tok_text!r} H={H:.3f} cand0={cand0}")
 
         # Update sample with new data (unchanged behavior)
         sample.tokens.extend(new_response_tokens)
