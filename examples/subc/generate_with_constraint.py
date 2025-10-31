@@ -2,6 +2,7 @@ import json
 from argparse import Namespace
 from typing import List, Optional
 
+import math
 import torch
 from pydantic import BaseModel, Field
 
@@ -89,8 +90,9 @@ async def generate(args: Namespace, sample: Sample, sampling_params: dict) -> Sa
     # --- Payload Modification ---
     request_sampling_params = sampling_params.copy()
     #request_sampling_params["json_schema"] = json.dumps(SolutionNoTool.model_json_schema())
+    request_sampling_params["top_logprobs_num"] = 20
     payload = {
-        "sampling_params": request_sampling_params, 
+        "sampling_params": request_sampling_params,
         "return_logprob": True,
         "top_logprobs_num": 20,
         "return_text_in_logprobs": True,
@@ -110,25 +112,35 @@ async def generate(args: Namespace, sample: Sample, sampling_params: dict) -> Sa
     output = await post(url, payload)
 
     # --- INJECTION POINT FOR ENTROPY CALCULATION ---
-    if "output_token_logprobs" in output["meta_info"]:
+    meta_info = output.get("meta_info", {})
+    token_logprobs = meta_info.get("output_token_logprobs", [])
+    topk_all_steps = meta_info.get("output_top_logprobs")
+
+    def _entropy_from_topk(candidates: Optional[List[List]]) -> float:
+        if not candidates:
+            return 0.0
+        logps = [cand[0] for cand in candidates if cand and cand[0] is not None and math.isfinite(cand[0])]
+        if not logps:
+            return 0.0
+        m = max(logps)
+        if not math.isfinite(m):
+            return 0.0
+        exps = [math.exp(lp - m) for lp in logps]
+        z = sum(exps)
+        if z <= 0:
+            return 0.0
+        probs = [val / z for val in exps]
+        return -sum(p * math.log(p) for p in probs if p > 0)
+
+    if token_logprobs:
         new_response_tokens, new_response_log_probs, new_entropies = [], [], []
 
-        for item in output["meta_info"]["output_token_logprobs"]:
-            print(item)
-            new_response_log_probs.append(item[0])
-            new_response_tokens.append(item[1])
-            top_logprobs_dict = item[2]
-
-            if top_logprobs_dict:
-                log_probs = torch.tensor(list(top_logprobs_dict.values()), dtype=torch.float32)
-                probs = torch.exp(log_probs)
-                # Normalize probabilities to sum to 1 for the entropy calculation
-                # This calculates entropy over the truncated top-k distribution
-                probs /= probs.sum()
-                entropy = -torch.sum(probs * torch.log(probs)).item()
-                new_entropies.append(entropy)
-            else:
-                new_entropies.append(0.0)
+        for step, item in enumerate(token_logprobs):
+            lp, tok_id, tok_text = (item + [None, None, None])[:3]
+            new_response_log_probs.append(lp)
+            new_response_tokens.append(tok_id)
+            candidates = topk_all_steps[step] if topk_all_steps and step < len(topk_all_steps) else None
+            new_entropies.append(_entropy_from_topk(candidates))
 
         # Update sample with new data
         sample.tokens.extend(new_response_tokens)
