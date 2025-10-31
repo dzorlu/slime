@@ -13,9 +13,15 @@ MOUNTED_PATH=/lambda/nfs/fs-us-south-3
 
 CONTAINER_NAME=slime-ray-1n-$$
 WANDB_KEY=${WANDB_KEY:-}
+HUGGING_FACE_HUB_TOKEN=${HUGGING_FACE_HUB_TOKEN:-}
 
 if [ -z "${WANDB_KEY}" ]; then
   echo "[ray-1n] WANDB_KEY must be set (required by node_setup.sh)" >&2
+  exit 1
+fi
+
+if [ -z "${HUGGING_FACE_HUB_TOKEN}" ]; then
+  echo "[ray-1n] HUGGING_FACE_HUB_TOKEN must be set (required by node_setup.sh)" >&2
   exit 1
 fi
 

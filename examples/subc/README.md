@@ -32,6 +32,8 @@ From the repo root:
 ```
 git clone https://github.com/dzorlu/slime.git
 git checkout deniz/tim_async_rollout
+sudo usermod -aG docker $USER
+newgrp docker
 chmod +x examples/subc/ray/single_node.sh
 ```
 
