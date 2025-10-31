@@ -86,10 +86,10 @@ PERF_ARGS=(
 
    --recompute-granularity full
    --recompute-method uniform
-   --recompute-num-layers 2
+   --recompute-num-layers 16
 
    --use-dynamic-batch-size
-   --max-tokens-per-gpu 4096
+   --max-tokens-per-gpu 16384
 )
 
 GRPO_ARGS=(
