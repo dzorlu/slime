@@ -38,6 +38,7 @@ chmod +x examples/subc/ray/single_node.sh
 ```bash
 # Single node
 export WANDB_KEY=<your-key>
+export HUGGING_FACE_HUB_TOKEN=<your-key>
 sbatch slime/examples/subc/slime_single_node.sbatch
 # w/o slurm
 ./examples/subc/ray/single_node.sh
