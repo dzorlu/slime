@@ -41,12 +41,12 @@ chmod +x examples/subc/ray/single_node.sh
 # Single node
 export WANDB_KEY=<your-key>
 export HUGGING_FACE_HUB_TOKEN=<your-key>
-sbatch slime/examples/subc/slime_single_node.sbatch
-# w/o slurm
-./examples/subc/ray/single_node.sh
+#TODO sbatch slime/examples/subc/slime_single_node.sbatch
+# w/o slurm (argument is the mount suffix; mounts /lambda/nfs/<suffix> on host)
+./examples/subc/ray/single_node.sh RL-fs
 
 # Multi-node (adjust -N and --gpus-per-node in script as needed)
-sbatch slime/examples/subc/slime_multi_node.sbatch
+#TODO sbatch slime/examples/subc/slime_multi_node.sbatch
 ```
 
 View logs: `tail -f slurm-<jobid>.out`
