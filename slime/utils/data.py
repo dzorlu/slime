@@ -62,10 +62,13 @@ class Dataset:
                     assert isinstance(tools, list), f"tools must be a list, got {type(tools)} instead"
                 else:
                     tools = None
+                
                 template_input = [{"role": "user", "content": prompt_content}] if multimodal_keys else prompt_content
+                print(f"{template_input=}")
                 prompt = tokenizer.apply_chat_template(
                     template_input, tools, tokenize=False, add_generation_prompt=True
                 )
+                print(f"{prompt=}")
 
             else:
                 prompt = prompt_content
