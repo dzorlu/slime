@@ -84,7 +84,6 @@ class Dataset:
                     tools = None
                 
                 template_input = [{"role": "user", "content": prompt_content}] if multimodal_keys else prompt_content
-                print(f"{template_input=}")
                 prompt = tokenizer.apply_chat_template(
                     template_input,
                     tools,
@@ -92,7 +91,6 @@ class Dataset:
                     add_generation_prompt=True,
                     **apply_chat_template_kwargs,
                 )
-                print(f"{prompt=}")
 
             else:
                 prompt = prompt_content
