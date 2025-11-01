@@ -324,6 +324,7 @@ def policy_loss_function(args, batch, logits, sum_of_sample_mean):
     # entropy loss
     entropy_loss = torch.zeros_like(pg_loss)
     entropy = torch.zeros_like(pg_loss)
+    entropy_loss = sum_of_sample_mean(entropy)
     if args.entropy_coef != 0:
         entropy = log_probs_and_entropy["entropy"]
         entropy = torch.cat(entropy, dim=0)
