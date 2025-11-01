@@ -83,7 +83,7 @@ PERF_ARGS=(
 
    --recompute-granularity full
    --recompute-method uniform
-   --recompute-num-layers 2
+   --recompute-num-layers 8
 
    --use-dynamic-batch-size
    --max-tokens-per-gpu 4096

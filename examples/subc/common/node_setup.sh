@@ -47,7 +47,7 @@ download_repo model SubconsciousDev/TIM-8b-long-grpo /lambda/nfs/models/TIM-8b-l
 
 wait
 
-# Convert weights (save alongside default symlinked path)
+# Convert weights
 MODEL_TORCH_DIR=/lambda/nfs/models/model_torch_dist
 if [ -d "$MODEL_TORCH_DIR" ]; then
   echo "[node_setup] Skipping weight conversion; found ${MODEL_TORCH_DIR}"
