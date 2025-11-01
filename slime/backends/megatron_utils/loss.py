@@ -475,11 +475,13 @@ def policy_loss_function(
     ppo_kl = sum_of_sample_mean(ppo_kl)
 
     # entropy loss
-    entropy = log_probs_and_entropy["entropy"]
-    entropy = torch.cat(entropy, dim=0)
-    entropy_loss = sum_of_sample_mean(entropy)
+    entropy_loss = torch.zeros_like(pg_loss)
+    if args.entropy_coef != 0:
+        entropy = log_probs_and_entropy["entropy"]
+        entropy = torch.cat(entropy, dim=0)
+        entropy_loss = sum_of_sample_mean(entropy)
 
-    loss = pg_loss - args.entropy_coef * entropy_loss
+    loss = pg_loss + args.entropy_coef * entropy_loss
 
     if args.use_kl_loss:
         ref_log_probs = batch["ref_log_probs"]
