@@ -9,7 +9,13 @@ IMAGE=${IMAGE:-slimerl/slime:v0.5.0rc0-cu126}
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 REPO_ROOT=$(cd "${SCRIPT_DIR}/../../.." && pwd)
 COMMON_DIR=/workspace/examples/subc/common
-MOUNTED_PATH=/lambda/nfs/fs-us-south-3
+# Require a mount suffix and map host /lambda/nfs/<suffix> into the container at /lambda/nfs
+if [ $# -lt 1 ]; then
+  echo "Usage: $0 <mounted_suffix>   # mounts host /lambda/nfs/<mounted_suffix> -> container /lambda/nfs" >&2
+  exit 1
+fi
+MOUNT_SUFFIX="$1"
+HOST_MOUNT="/lambda/nfs/${MOUNT_SUFFIX}"
 
 CONTAINER_NAME=slime-ray-1n-$$
 WANDB_KEY=${WANDB_KEY:-}
@@ -33,7 +39,7 @@ CONTAINER_ID=$(docker run -d --rm --gpus all --privileged --ipc=host --shm-size=
   --tmpfs /tmp:exec,size=64g \
   --ulimit memlock=-1 --ulimit stack=67108864 \
   -v "${REPO_ROOT}":/workspace \
-  -v "${MOUNTED_PATH}":/lambda/nfs \
+  -v "${HOST_MOUNT}":/lambda/nfs \
   -e WANDB_KEY="${WANDB_KEY}" \
   -e HUGGING_FACE_HUB_TOKEN="${HUGGING_FACE_HUB_TOKEN}" \
   --name "${CONTAINER_NAME}" \

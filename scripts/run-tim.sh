@@ -50,7 +50,7 @@ CKPT_ARGS=(
 )
 
 ROLLOUT_ARGS=(
-   --prompt-data /lambda/nfs/OpenR1-Math-220k-formatted
+   --prompt-data /lambda/nfs/OpenR1-Math-220k-formatted/data/train-00000-of-00027.parquet
    --input-key problem
    --label-key answer
    --apply-chat-template
