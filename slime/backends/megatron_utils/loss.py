@@ -476,6 +476,7 @@ def policy_loss_function(
 
     # entropy loss
     entropy_loss = torch.zeros_like(pg_loss)
+    entropy = torch.zeros_like(pg_loss)
     if args.entropy_coef != 0:
         entropy = log_probs_and_entropy["entropy"]
         entropy = torch.cat(entropy, dim=0)
