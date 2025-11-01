@@ -388,7 +388,7 @@ def policy_loss_function(
         unconcat_tokens=batch["unconcat_tokens"],
         total_lengths=total_lengths,
         response_lengths=response_lengths,
-        with_entropy=True,
+        with_entropy=False,
     )
 
     log_probs = log_probs_and_entropy["log_probs"]
