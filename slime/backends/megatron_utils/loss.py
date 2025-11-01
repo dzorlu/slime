@@ -274,7 +274,7 @@ def policy_loss_function(args, batch, logits, sum_of_sample_mean):
         unconcat_tokens=batch["unconcat_tokens"],
         total_lengths=total_lengths,
         response_lengths=response_lengths,
-        with_entropy=False,
+        with_entropy=(args.entropy_coef != 0),
     )
 
     log_probs = log_probs_and_entropy["log_probs"]
@@ -322,13 +322,12 @@ def policy_loss_function(args, batch, logits, sum_of_sample_mean):
     ppo_kl = sum_of_sample_mean(ppo_kl)
 
     # entropy loss
-    entropy_loss = torch.zeros_like(pg_loss)
-    entropy = torch.zeros_like(pg_loss)
-    entropy_loss = sum_of_sample_mean(entropy)
     if args.entropy_coef != 0:
-        entropy = log_probs_and_entropy["entropy"]
-        entropy = torch.cat(entropy, dim=0)
+        entropy = torch.cat(log_probs_and_entropy["entropy"], dim=0)
         entropy_loss = sum_of_sample_mean(entropy)
+    else:
+        entropy = torch.zeros(1, device=logits.device, dtype=torch.float32)
+        entropy_loss = torch.tensor(0.0, device=logits.device, dtype=torch.float32)
 
     loss = pg_loss + args.entropy_coef * entropy_loss
 
