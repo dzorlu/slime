@@ -43,7 +43,7 @@ export WANDB_KEY=<your-key>
 export HUGGING_FACE_HUB_TOKEN=<your-key>
 #TODO sbatch slime/examples/subc/slime_single_node.sbatch
 # w/o slurm (argument is the mount suffix; mounts /lambda/nfs/<suffix> on host)
-./examples/subc/ray/single_node.sh RL-fs
+./examples/subc/ray/single_node.sh FS_NAME
 
 # Multi-node (adjust -N and --gpus-per-node in script as needed)
 #TODO sbatch slime/examples/subc/slime_multi_node.sbatch
