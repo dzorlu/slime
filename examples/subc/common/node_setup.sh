@@ -39,24 +39,44 @@ download_repo() {
   [ "$kind" = model ] && ln -sfn "$target" /root/model
 }
 
+# Require model size (8B or 30B)
+: "${MODEL_SIZE:?MODEL_SIZE must be set to 8B or 30B}"
+case "${MODEL_SIZE}" in
+  8B)
+    MODEL_REPO="SubconsciousDev/TIM-8b-long-grpo"
+    MODEL_LOCAL_DIR="/lambda/nfs/models/TIM-8b-long-grpo"
+    MODEL_ARGS_SCRIPT="scripts/models/tim-8B.sh"
+    MODEL_TORCH_DIR="/lambda/nfs/models/model_torch_dist_8B"
+    ;;
+  30B)
+    MODEL_REPO="SubconsciousDev/Tim-30B-A3B-sft"
+    MODEL_LOCAL_DIR="/lambda/nfs/models/Tim-30B-A3B-sft"
+    MODEL_ARGS_SCRIPT="scripts/models/tim-30B.sh"
+    MODEL_TORCH_DIR="/lambda/nfs/models/model_torch_dist_30B"
+    ;;
+  *)
+    echo "[node_setup] Invalid MODEL_SIZE='${MODEL_SIZE}'. Expected 8B or 30B." >&2
+    exit 1
+    ;;
+esac
+
+# Datasets/models
 #download_repo dataset zhuzilin/dapo-math-17k /lambda/nfs/dapo-math-17k &
 download_repo dataset mitroitskii/OpenR1-Math-220k-formatted /lambda/nfs/OpenR1-Math-220k-formatted &
 download_repo dataset zhuzilin/aime-2024 /lambda/nfs/aime-2024 &
-#download_repo model Qwen/Qwen3-0.6B /lambda/nfs/models/Qwen3-0.6B &
-download_repo model SubconsciousDev/TIM-8b-long-grpo /lambda/nfs/models/TIM-8b-long-grpo &
+download_repo model "${MODEL_REPO}" "${MODEL_LOCAL_DIR}" &
 
 wait
 
 # Convert weights
-MODEL_TORCH_DIR=/lambda/nfs/models/model_torch_dist
 if [ -d "$MODEL_TORCH_DIR" ]; then
   echo "[node_setup] Skipping weight conversion; found ${MODEL_TORCH_DIR}"
 else
-  source scripts/models/tim-8B.sh
+  # Source model-specific args
+  source "${MODEL_ARGS_SCRIPT}"
   PYTHONPATH=/root/Megatron-LM python tools/convert_hf_to_torch_dist.py \
     ${MODEL_ARGS[@]} \
-    --hf-checkpoint /lambda/nfs/models/TIM-8b-long-grpo \
-    --tokenizer-model Qwen/Qwen3-8B \
+    --hf-checkpoint "${MODEL_LOCAL_DIR}" \
     --tokenizer-type HuggingFaceTokenizer \
     --save "$MODEL_TORCH_DIR"
 fi

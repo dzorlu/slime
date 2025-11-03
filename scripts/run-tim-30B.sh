@@ -39,11 +39,11 @@ fi
 echo "HAS_NVLINK: $HAS_NVLINK (detected $NVLINK_COUNT NVLink references)"
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
-source "${SCRIPT_DIR}/models/tim-8B.sh"
+source "${SCRIPT_DIR}/models/tim-30B.sh"
 
 CKPT_ARGS=(
-   --hf-checkpoint SubconsciousDev/TIM-8b-long-grpo
-   --ref-load /lambda/nfs/models/model_torch_dist_8B
+   --hf-checkpoint SubconsciousDev/Tim-30B-A3B-sft
+   --ref-load /lambda/nfs/models/model_torch_dist_30B
    --load /lambda/nfs/checkpoints/
    --save /lambda/nfs/checkpoints/
    --save-interval 20
@@ -185,3 +185,5 @@ ray job submit --address="http://127.0.0.1:8265" \
    ${SGLANG_ARGS[@]} \
    ${DEBUG_ARGS[@]} \
    ${MISC_ARGS[@]}
+
+
