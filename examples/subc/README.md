@@ -31,10 +31,10 @@ Usage
 From the repo root:
 ```
 git clone https://github.com/dzorlu/slime.git
-git checkout deniz/tim_async_rollout
+git checkout deniz/tim_30b
 sudo usermod -aG docker $USER
 newgrp docker
-chmod +x examples/subc/ray/single_node.sh
+
 ```
 
 ```bash
@@ -43,7 +43,7 @@ export WANDB_KEY=<your-key>
 export HUGGING_FACE_HUB_TOKEN=<your-key>
 #TODO sbatch slime/examples/subc/slime_single_node.sbatch
 # w/o slurm (argument is the mount suffix; mounts /lambda/nfs/<suffix> on host)
-./examples/subc/ray/single_node.sh FS_NAME
+bash examples/subc/ray/single_node.sh FS_NAME --model-size 30B
 
 # Multi-node (adjust -N and --gpus-per-node in script as needed)
 #TODO sbatch slime/examples/subc/slime_multi_node.sbatch

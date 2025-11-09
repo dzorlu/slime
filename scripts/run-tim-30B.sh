@@ -83,7 +83,7 @@ PERF_ARGS=(
 
    --recompute-granularity full
    --recompute-method uniform
-   --recompute-num-layers 3
+   --recompute-num-layers 2
 
    --use-dynamic-batch-size
    --max-tokens-per-gpu 4096
@@ -113,7 +113,7 @@ WANDB_ARGS=(
    --use-wandb
    --wandb-team autonomous-nlp
    --wandb-project slime-dev
-   --wandb-group test-tim
+   --wandb-group tim-30b
    --wandb-key ${WANDB_KEY}
 )
 
@@ -172,7 +172,7 @@ ray job submit --address="http://127.0.0.1:8265" \
    --runtime-env-json="${RUNTIME_ENV_JSON}" \
    -- python3 train_async.py \
    --actor-num-nodes ${ACTOR_NUM_NODES:-1} \
-   --actor-num-gpus-per-node 4 \
+   --actor-num-gpus-per-node 8 \
    --custom-generate-function-path examples.subc.generate_with_constraint.generate \
    ${MODEL_ARGS[@]} \
    ${CKPT_ARGS[@]} \
