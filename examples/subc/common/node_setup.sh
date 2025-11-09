@@ -19,6 +19,7 @@ fi
 pip install -e .
 pip install "huggingface-hub<1.0" --upgrade
 pip install datasets
+pip install -U torch==2.8.0
 #pip install -U sglang
 #pip install -U sglang-router==0.2.2
 
@@ -77,7 +78,6 @@ else
   PYTHONPATH=/root/Megatron-LM python tools/convert_hf_to_torch_dist.py \
     ${MODEL_ARGS[@]} \
     --hf-checkpoint "${MODEL_LOCAL_DIR}" \
-    --tokenizer-type HuggingFaceTokenizer \
     --save "$MODEL_TORCH_DIR"
 fi
 
