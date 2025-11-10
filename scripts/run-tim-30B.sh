@@ -56,7 +56,7 @@ ROLLOUT_ARGS=(
    --apply-chat-template
    #--rollout-shuffle
    --rm-type math # accepts a boxed answer anywhere in the response.
-   --num-rollout 100
+   --num-rollout 1000
    --rollout-batch-size 4
    --n-samples-per-prompt 4 # (rollout-batch-size × n-samples-per-prompt) = (global-batch-size × num-steps-per-rollout)
    --rollout-max-response-len 8192
@@ -119,7 +119,7 @@ WANDB_ARGS=(
    --wandb-mode online
    --use-wandb
    --wandb-team autonomous-nlp
-   --wandb-project slime-dev
+   --wandb-project OpenR1-Math-220k
    --wandb-group tim-30b
    --wandb-key ${WANDB_KEY}
 )
