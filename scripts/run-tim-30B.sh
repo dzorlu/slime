@@ -57,11 +57,11 @@ ROLLOUT_ARGS=(
    #--rollout-shuffle
    --rm-type math # accepts a boxed answer anywhere in the response.
    --num-rollout 100
-   --rollout-batch-size 2
+   --rollout-batch-size 4
    --n-samples-per-prompt 4 # (rollout-batch-size × n-samples-per-prompt) = (global-batch-size × num-steps-per-rollout)
    --rollout-max-response-len 8192
    --rollout-temperature 0.8
-   --global-batch-size 8
+   --global-batch-size 16
    #--balance-data
 )
 
