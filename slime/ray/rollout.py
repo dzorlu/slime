@@ -4,6 +4,8 @@ import random
 import time
 from pathlib import Path
 from typing import List, Union
+import asyncio
+import threading
 
 import ray
 import torch
@@ -65,12 +67,27 @@ class RolloutManager:
         self.rollout_engine_lock = Lock.options(num_cpus=1, num_gpus=0).remote()
 
         self._metric_checker = MetricChecker.maybe_create(args)
+<<<<<<< HEAD
         if self.args.use_fault_tolerance:
             self._health_monitor = RolloutHealthMonitor(self, args)
+=======
+        self._health_monitor = RolloutHealthMonitor(self, args)
+        # Dedicated asyncio loop for non-blocking IO tasks
+        self._async_loop = asyncio.new_event_loop()
+        self._async_thread = threading.Thread(
+            target=self._start_async_loop, args=(self._async_loop,), name="rollout-io-loop", daemon=True
+        )
+        self._async_thread.start()
+>>>>>>> 4770e98 (increase batch size. log pss@k rate)
 
     def dispose(self):
         if self._metric_checker is not None:
             self._metric_checker.dispose()
+        # Stop the IO loop without waiting
+        try:
+            self._async_loop.call_soon_threadsafe(self._async_loop.stop)
+        except Exception:
+            pass
 
     # TODO maybe rename "rollout_engines" and "all_rollout_engines" later
     @property
@@ -163,18 +180,27 @@ class RolloutManager:
             path = Path(path_template.format(rollout_id=eval_prefix + str(rollout_id), run_id=self.wandb_run_id))
             print(f"Save debug rollout data to {path}")
             path.parent.mkdir(parents=True, exist_ok=True)
+            payload = dict(
+                rollout_id=rollout_id,
+                samples=[sample.to_dict() for sample in data],
+            )
+            # Schedule async save without blocking rollout path
+            try:
+                asyncio.run_coroutine_threadsafe(self._async_write_debug_file(path, payload), self._async_loop)
+            except Exception as e:
+                print(f"Failed to schedule async save to {path}: {e}")
 
-            # TODO may improve the format
-            if evaluation:
-                dump_data = dict(
-                    samples=[sample.to_dict() for dataset_name, info in data.items() for sample in info["samples"]]
-                )
-            else:
-                dump_data = dict(
-                    samples=[sample.to_dict() for sample in data],
-                )
+    async def _async_write_debug_file(self, path: Path, payload: dict):
+        try:
+            # torch.save is blocking; offload to a worker thread via asyncio
+            await asyncio.to_thread(torch.save, payload, path)
+        except Exception as e:
+            print(f"Failed to save debug rollout data to {path}: {e}")
 
-            torch.save(dict(rollout_id=rollout_id, **dump_data), path)
+    @staticmethod
+    def _start_async_loop(loop: asyncio.AbstractEventLoop):
+        asyncio.set_event_loop(loop)
+        loop.run_forever()
 
     def _post_process_rewards(self, samples: Union[list[Sample], list[list[Sample]]]):
         if self.custom_reward_post_process_func is not None:
