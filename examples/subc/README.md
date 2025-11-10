@@ -27,6 +27,16 @@ newgrp docker
 
 Usage
 -----
+For B200, build a different Docker image. 
+```
+cd ~/slime
+DOCKER_BUILDKIT=0 docker build -f docker/Dockerfile_b200 -t slimerl/slime:v0.5.2rc2-cu128-b200 .
+```
+set the IMAGE env.
+```
+export IMAGE=slimerl/slime:v0.5.2rc2-cu128-b200
+```
+
 
 From the repo root:
 ```
