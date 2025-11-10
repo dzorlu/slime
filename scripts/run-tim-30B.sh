@@ -69,6 +69,7 @@ EVAL_ARGS=(
    --eval-interval 50
    --eval-prompt-data aime /lambda/nfs/aime-2024/aime-2024.jsonl
    --eval-input-key prompt
+   --eval-label-key label
    --n-samples-per-eval-prompt 16
    --eval-max-response-len 16384
    --eval-top-p 0.7
