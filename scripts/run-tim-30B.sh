@@ -110,7 +110,7 @@ OPTIMIZER_ARGS=(
    --optimizer-cpu-offload
    --overlap-cpu-optimizer-d2h-h2d
    --use-precision-aware-optimizer
-   
+
 )
 
 WANDB_ARGS=(
@@ -124,8 +124,11 @@ WANDB_ARGS=(
 
 SGLANG_ARGS=(
    --rollout-num-gpus 8
-   --rollout-num-gpus-per-engine 1
+   --rollout-num-gpus-per-engine 4
    --sglang-mem-fraction-static 0.65
+   --sglang-expert-parallel-size 2
+   --sglang-moe-a2a-backend deepep
+
 )
 
 DEBUG_ARGS=(
