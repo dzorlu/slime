@@ -118,7 +118,7 @@ WANDB_ARGS=(
 )
 
 SGLANG_ARGS=(
-   --rollout-num-gpus 4
+   --rollout-num-gpus 8
    --rollout-num-gpus-per-engine 1
    --sglang-mem-fraction-static 0.65
 )
@@ -170,9 +170,10 @@ done
 sleep 60
 ray job submit --address="http://127.0.0.1:8265" \
    --runtime-env-json="${RUNTIME_ENV_JSON}" \
-   -- python3 train_async.py \
+   -- python3 train.py \
    --actor-num-nodes ${ACTOR_NUM_NODES:-1} \
    --actor-num-gpus-per-node 8 \
+   --colocate \
    --custom-generate-function-path examples.subc.generate_with_constraint.generate \
    ${MODEL_ARGS[@]} \
    ${CKPT_ARGS[@]} \
