@@ -127,7 +127,7 @@ WANDB_ARGS=(
 SGLANG_ARGS=(
    --rollout-num-gpus 8
    --rollout-num-gpus-per-engine 4
-   --sglang-mem-fraction-static 0.65
+   --sglang-mem-fraction-static 0.5
    --sglang-expert-parallel-size 2
    #--sglang-moe-a2a-backend deepep
 )
