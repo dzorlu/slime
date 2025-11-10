@@ -66,7 +66,7 @@ ROLLOUT_ARGS=(
 )
 
 EVAL_ARGS=(
-   --eval-interval 50
+   --eval-interval 200
    --eval-prompt-data aime /lambda/nfs/aime-2024/aime-2024.jsonl
    --eval-input-key prompt
    --eval-label-key label
@@ -85,10 +85,10 @@ PERF_ARGS=(
 
    --recompute-granularity full
    --recompute-method uniform
-   --recompute-num-layers 2
+   --recompute-num-layers 1
 
    --use-dynamic-batch-size
-   --max-tokens-per-gpu 20480
+   --max-tokens-per-gpu 12288
 )
 
 GRPO_ARGS=(
