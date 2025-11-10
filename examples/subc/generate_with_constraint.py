@@ -118,9 +118,9 @@ async def generate(args: Namespace, sample: Sample, sampling_params: dict) -> Sa
     topk_all_steps = meta_info.get("output_top_logprobs") or []
 
     # Optional verbose debug controlled by env var: SLIME_DEBUG_TOPK=1   
-    print("[topk] meta_info keys:", sorted(list(meta_info.keys())))
-    print("[topk] has output_token_logprobs:", bool(token_logprobs), "len=", len(token_logprobs))
-    print("[topk] has output_top_logprobs:", bool(topk_all_steps), "len=", len(topk_all_steps))
+    #print("[topk] meta_info keys:", sorted(list(meta_info.keys())))
+    #print("[topk] has output_token_logprobs:", bool(token_logprobs), "len=", len(token_logprobs))
+    #print("[topk] has output_top_logprobs:", bool(topk_all_steps), "len=", len(topk_all_steps))
 
     def _entropy_from_topk(candidates: Optional[List[List]]) -> float:
         # candidates: [[logprob, token_id, token_text_or_None], ...]

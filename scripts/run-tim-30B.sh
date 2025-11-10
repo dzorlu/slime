@@ -57,11 +57,11 @@ ROLLOUT_ARGS=(
    #--rollout-shuffle
    --rm-type math # accepts a boxed answer anywhere in the response.
    --num-rollout 1000
-   --rollout-batch-size 4
+   --rollout-batch-size 8
    --n-samples-per-prompt 4 # (rollout-batch-size × n-samples-per-prompt) = (global-batch-size × num-steps-per-rollout)
    --rollout-max-response-len 8192
    --rollout-temperature 0.8
-   --global-batch-size 16
+   --global-batch-size 32
    #--balance-data
 )
 
@@ -183,6 +183,7 @@ ray job submit --address="http://127.0.0.1:8265" \
    --actor-num-nodes ${ACTOR_NUM_NODES:-1} \
    --actor-num-gpus-per-node 8 \
    --colocate \
+   --log-passrate \
    --custom-generate-function-path examples.subc.generate_with_constraint.generate \
    ${MODEL_ARGS[@]} \
    ${CKPT_ARGS[@]} \
