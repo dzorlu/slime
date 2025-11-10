@@ -19,9 +19,6 @@ fi
 pip install -e .
 pip install "huggingface-hub<1.0" --upgrade
 pip install datasets
-pip uninstall -y torch torchvision torchaudio
-pip install --pre --no-cache-dir --index-url https://download.pytorch.org/whl/nightly/cu126 \
-  torch torchvision
 #pip install -U sglang
 #pip install -U sglang-router==0.2.2
 
