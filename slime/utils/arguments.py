@@ -784,21 +784,6 @@ def get_slime_extra_args_provider(add_custom_arguments=None):
                 ),
             )
             parser.add_argument(
-                "--record-memory-history",
-                action="store_true",
-                default=False,
-                help=(
-                    "Enable CUDA memory history recording and attach an OOM observer "
-                    "that dumps a CUDA allocator snapshot to `--memory-snapshot-path` when OOM occurs."
-                ),
-            )
-            parser.add_argument(
-                "--memory-snapshot-path",
-                type=str,
-                default="cuda_memory_snapshot.pkl",
-                help="Filename (or path) to write CUDA memory snapshot on OOM when --record-memory-history is enabled.",
-            )
-            parser.add_argument(
                 "--load-debug-rollout-data",
                 type=str,
                 default=None,
