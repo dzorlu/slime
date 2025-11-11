@@ -46,7 +46,8 @@ CKPT_ARGS=(
    --ref-load /lambda/nfs/models/model_torch_dist_30B
    --load /lambda/nfs/checkpoints/
    --save /lambda/nfs/checkpoints/
-   --save-interval 20
+   --save-interval 1000
+   --no-save-optim
 )
 
 ROLLOUT_ARGS=(
