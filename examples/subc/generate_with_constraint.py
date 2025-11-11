@@ -91,7 +91,8 @@ async def generate(args: Namespace, sample: Sample, sampling_params: dict) -> Sa
     # --- Payload Modification ---
     request_sampling_params = sampling_params.copy()
     request_sampling_params["json_schema"] = json.dumps(SolutionNoTool.model_json_schema())
-    request_sampling_params["top_logprobs_num"] = 20
+    request_sampling_params["logprobs"] = True
+    request_sampling_params["top_logprobs"] = 20
     payload = {
         "sampling_params": request_sampling_params,
         "return_logprob": True,
@@ -178,12 +179,12 @@ async def generate(args: Namespace, sample: Sample, sampling_params: dict) -> Sa
     if "weight_version" in output["meta_info"]:
         sample.weight_versions.append(output["meta_info"]["weight_version"])
 
-    match output["meta_info"]["finish_reason"]["type"]:
-        case "length":
-            sample.status = Sample.Status.TRUNCATED
-        case "abort":
-            sample.status = Sample.Status.ABORTED
-        case "stop":
-            sample.status = Sample.Status.COMPLETED
+    finish_type = output["meta_info"]["finish_reason"]["type"]
+    if finish_type == "length":
+        sample.status = Sample.Status.TRUNCATED
+    elif finish_type == "abort":
+        sample.status = Sample.Status.ABORTED
+    elif finish_type == "stop":
+        sample.status = Sample.Status.COMPLETED
 
     return sample
