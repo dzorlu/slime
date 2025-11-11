@@ -46,7 +46,7 @@ CKPT_ARGS=(
    --ref-load /lambda/nfs/models/model_torch_dist_30B
    --load /lambda/nfs/checkpoints/
    --save /lambda/nfs/checkpoints/
-   --save-interval 1000
+   --save-interval 40
    --no-save-optim
 )
 
@@ -68,7 +68,7 @@ ROLLOUT_ARGS=(
 )
 
 EVAL_ARGS=(
-   --eval-interval 200
+   --eval-interval 40
    --eval-prompt-data aime /lambda/nfs/aime-2024/aime-2024.jsonl
    --eval-input-key prompt
    --eval-label-key label
@@ -111,9 +111,9 @@ OPTIMIZER_ARGS=(
    --adam-beta1 0.9
    --adam-beta2 0.98
 
-   --optimizer-cpu-offload
-   --overlap-cpu-optimizer-d2h-h2d
-   --use-precision-aware-optimizer
+#    --optimizer-cpu-offload
+#    --overlap-cpu-optimizer-d2h-h2d
+#    --use-precision-aware-optimizer
 
 )
 
