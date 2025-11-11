@@ -133,7 +133,7 @@ SGLANG_ARGS=(
 )
 
 DEBUG_ARGS=(
-   --sglang-enable-metrics
+   #--sglang-enable-metrics
    --save-debug-rollout-data /lambda/nfs/rollouts/{run_id}/rollout_{rollout_id}.pt
    --record-memory-history
 )
