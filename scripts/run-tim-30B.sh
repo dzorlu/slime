@@ -59,7 +59,7 @@ ROLLOUT_ARGS=(
    --num-rollout 1000
    --rollout-batch-size 16 # H100: 4, B200: 16
    --n-samples-per-prompt 8 # (rollout-batch-size × n-samples-per-prompt) = (global-batch-size × num-steps-per-rollout)
-   --rollout-max-response-len 12288 # H100: 8192, B200: 12288
+   --rollout-max-response-len 16384 # H100: 8192, B200: 16384
    --rollout-temperature 0.9 
    --global-batch-size 128 # H100: 32, B200: 128
    #--balance-data
@@ -88,7 +88,7 @@ PERF_ARGS=(
    --recompute-num-layers 1
 
    --use-dynamic-batch-size
-   --max-tokens-per-gpu 12288 # H100: 8192, B200: 12288
+   --max-tokens-per-gpu 16384 # H100: 8192, B200: 12288
 )
 
 GRPO_ARGS=(
