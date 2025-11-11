@@ -91,7 +91,6 @@ async def generate(args: Namespace, sample: Sample, sampling_params: dict) -> Sa
     # --- Payload Modification ---
     request_sampling_params = sampling_params.copy()
     request_sampling_params["json_schema"] = json.dumps(SolutionNoTool.model_json_schema())
-    request_sampling_params["top_logprobs"] = 20
     payload = {
         "sampling_params": request_sampling_params,
         "return_logprob": True,
