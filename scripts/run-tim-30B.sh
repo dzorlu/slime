@@ -185,7 +185,6 @@ ray job submit --address="http://127.0.0.1:8265" \
    --actor-num-gpus-per-node 8 \
    --colocate \
    --log-passrate \
-   #--use-slime-router \
    --custom-generate-function-path examples.subc.generate_with_constraint.generate \
    ${MODEL_ARGS[@]} \
    ${CKPT_ARGS[@]} \
