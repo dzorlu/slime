@@ -63,7 +63,7 @@ ROLLOUT_ARGS=(
    --n-samples-per-prompt 8 # (rollout-batch-size × n-samples-per-prompt) = (global-batch-size × num-steps-per-rollout)
    --rollout-max-response-len 16384 # H100: 8192, B200: 16384
    --rollout-temperature 0.9 
-   --global-batch-size 256 # H100: 32, B200: 256
+   #--global-batch-size 256 # H100: 32, B200: 256
    --num-steps-per-rollout 4
    #--balance-data
 )
@@ -96,10 +96,10 @@ PERF_ARGS=(
 
 GRPO_ARGS=(
    --advantage-estimator grpo
-   --use-kl-loss
+   --use-kl-loss # load the rerence model.
    --kl-loss-coef 0.00
    --kl-loss-type low_var_kl
-   --entropy-coef 0.00 # this is broken :)
+   --entropy-coef 0.00 # loss.
    --eps-clip 0.2
    --eps-clip-high 0.28
 )
