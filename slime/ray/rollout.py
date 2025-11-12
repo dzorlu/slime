@@ -159,10 +159,18 @@ class RolloutManager:
             path = Path(path_template.format(rollout_id=eval_prefix + str(rollout_id), run_id=self.wandb_run_id))
             print(f"Save debug rollout data to {path}")
             path.parent.mkdir(parents=True, exist_ok=True)
-            payload = dict(
-                rollout_id=rollout_id,
-                samples=[sample.to_dict() for sample in data],
-            )
+            if is_evaluation:
+                payload = dict(
+                    rollout_id=rollout_id,
+                    evaluation=True,
+                    eval_data=data,
+                )
+            else:
+                payload = dict(
+                    rollout_id=rollout_id,
+                    evaluation=False,
+                    samples=[sample.to_dict() for sample in data],
+                )
             # Schedule async save without blocking rollout path
             try:
                 asyncio.run_coroutine_threadsafe(self._async_write_debug_file(path, payload), self._async_loop)
