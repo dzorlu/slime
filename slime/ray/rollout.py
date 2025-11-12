@@ -166,11 +166,11 @@ class RolloutManager:
                     eval_data=data,
                 )
             else:
-            payload = dict(
-                rollout_id=rollout_id,
-                    evaluation=False,
-                samples=[sample.to_dict() for sample in data],
-            )
+                payload = dict(
+                    rollout_id=rollout_id,
+                        evaluation=False,
+                    samples=[sample.to_dict() for sample in data],
+                )
             # Schedule async save without blocking rollout path
             try:
                 asyncio.run_coroutine_threadsafe(self._async_write_debug_file(path, payload), self._async_loop)
