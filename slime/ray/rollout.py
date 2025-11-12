@@ -116,6 +116,7 @@ class RolloutManager:
             return
         # TODO: add fault tolerance to eval
         data = self.eval_generate_rollout(self.args, rollout_id, self.data_source, evaluation=True)
+        self._save_debug_rollout_data(data, rollout_id=rollout_id, is_evaluation=True)
         metrics = _log_eval_rollout_data(rollout_id, self.args, data)
         if self._metric_checker is not None:
             self._metric_checker.on_eval(metrics)
@@ -151,10 +152,11 @@ class RolloutManager:
                 print(f"trim number of samples from {origin_data_length} to {trim_len}")
         return data
 
-    def _save_debug_rollout_data(self, data, rollout_id):
+    def _save_debug_rollout_data(self, data, rollout_id, is_evaluation: bool = False):
         # TODO to be refactored (originally Buffer._set_data)
         if (path_template := self.args.save_debug_rollout_data) is not None:
-            path = Path(path_template.format(rollout_id=rollout_id, run_id=self.wandb_run_id))
+            eval_prefix = ("eval_" if is_evaluation else "")
+            path = Path(path_template.format(rollout_id=eval_prefix + str(rollout_id), run_id=self.wandb_run_id))
             print(f"Save debug rollout data to {path}")
             path.parent.mkdir(parents=True, exist_ok=True)
             payload = dict(
