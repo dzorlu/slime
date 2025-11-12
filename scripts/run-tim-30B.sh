@@ -64,6 +64,7 @@ ROLLOUT_ARGS=(
    --rollout-max-response-len 16384 # H100: 8192, B200: 16384
    --rollout-temperature 0.9 
    --global-batch-size 256 # H100: 32, B200: 256
+   --num-steps-per-rollout 4
    #--balance-data
 )
 
