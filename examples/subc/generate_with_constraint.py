@@ -94,8 +94,8 @@ async def generate(args: Namespace, sample: Sample, sampling_params: dict) -> Sa
     payload = {
         "sampling_params": request_sampling_params,
         "return_logprob": True,
-        "top_logprobs_num": 100,
-        "return_text_in_logprobs": True,
+        "top_logprobs_num": 50,
+        "return_text_in_logprobs": False,
     }
     if image_data:
         payload["image_data"] = image_data
