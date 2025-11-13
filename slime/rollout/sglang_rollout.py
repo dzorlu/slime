@@ -275,7 +275,12 @@ async def abort(args: Namespace, rollout_id: int) -> list[list[Sample]]:
     # abort all the requests
     for url in response["urls"]:
         print(f"Abort request for {url}", flush=True)
-        await post(f"{url}/abort_request", {"abort_all": True})
+        try:
+            # Best-effort: keep retries low to avoid blocking startup races
+            await post(f"{url}/abort_request", {"abort_all": True}, max_retries=5)
+        except Exception as e:
+            # Ignore connection failures during abort; engines may not be up yet
+            print(f"Abort request failed for {url}: {e}", flush=True)
 
     # make sure all the pending tasks are finished
     count = 0
