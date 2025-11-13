@@ -38,6 +38,15 @@ set the IMAGE env.
 export IMAGE=dzorlu/slime-b200:latest
 ```
 
+Prepare AIME eval data (boxed final answer)
+```
+python examples/subc/update_boxed_simple.py \
+  --input /lambda/nfs/aime-2024/aime-2024.jsonl \
+  --output /lambda/nfs/aime-2024/aime-2024.boxed.jsonl
+```
+- Then point your training script to the boxed file:
+  - `--eval-prompt-data aime /lambda/nfs/aime-2024/aime-2024.boxed.jsonl`
+
 
 From the repo root:
 ```

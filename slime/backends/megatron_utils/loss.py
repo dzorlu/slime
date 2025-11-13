@@ -274,7 +274,7 @@ def policy_loss_function(args, batch, logits, sum_of_sample_mean):
         unconcat_tokens=batch["unconcat_tokens"],
         total_lengths=total_lengths,
         response_lengths=response_lengths,
-        with_entropy=(args.entropy_coef != 0),
+        with_entropy=True,
     )
 
     log_probs = log_probs_and_entropy["log_probs"]
