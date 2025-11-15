@@ -60,7 +60,7 @@ ROLLOUT_ARGS=(
    --rm-type math # accepts a boxed answer anywhere in the response.
    --num-rollout 1000
    --rollout-batch-size 32 # H100: 4, B200: 32
-   --n-samples-per-prompt 8 # (rollout-batch-size × n-samples-per-prompt) = (global-batch-size × num-steps-per-rollout)
+   --n-samples-per-prompt 16 # (rollout-batch-size × n-samples-per-prompt) = (global-batch-size × num-steps-per-rollout)
    --rollout-max-response-len 16384 # H100: 8192, B200: 16384
    --rollout-temperature 0.9 
    #--global-batch-size 256 # H100: 32, B200: 256
@@ -107,7 +107,7 @@ GRPO_ARGS=(
 
 OPTIMIZER_ARGS=(
    --optimizer adam
-   --lr 1e-6
+   --lr 1e-5
    --lr-decay-style constant
    --weight-decay 0.1
    --adam-beta1 0.9
