@@ -32,7 +32,7 @@ MODEL_ARGS=(
    --untie-embeddings-and-output-weights
    --vocab-size 151936
 
-   --rotary-base 10000000
+   #--rotary-base 10000000
 
    # moe
    --moe-ffn-hidden-size 768
