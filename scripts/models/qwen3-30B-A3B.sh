@@ -33,6 +33,7 @@ MODEL_ARGS=(
    --vocab-size 151936
 
    #--rotary-base 10000000
+   --rotary-base 1000000
 
    # moe
    --moe-ffn-hidden-size 768
