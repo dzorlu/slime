@@ -49,8 +49,8 @@ case "${MODEL_SIZE}" in
     MODEL_TORCH_DIR="/lambda/nfs/models/model_torch_dist_8B"
     ;;
   30B)
-    MODEL_REPO="SubconsciousDev/Tim-30B-A3B-sft"
-    MODEL_LOCAL_DIR="/lambda/nfs/models/Tim-30B-A3B-sft"
+    MODEL_REPO="Qwen/Qwen3-30B-A3B"
+    MODEL_LOCAL_DIR="/lambda/nfs/models/Qwen3-30B-A3B"
     MODEL_ARGS_SCRIPT="scripts/models/qwen3-30B-A3B.sh"
     MODEL_TORCH_DIR="/lambda/nfs/models/model_torch_dist_30B"
     ;;

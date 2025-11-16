@@ -42,7 +42,7 @@ SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
 source "${SCRIPT_DIR}/models/qwen3-30B-A3B.sh"
 
 CKPT_ARGS=(
-   --hf-checkpoint SubconsciousDev/Tim-30B-A3B-sft
+   --hf-checkpoint Qwen/Qwen3-30B-A3B
    --ref-load /lambda/nfs/models/model_torch_dist_30B
    --load /lambda/nfs/checkpoints/
    --save /lambda/nfs/checkpoints/
