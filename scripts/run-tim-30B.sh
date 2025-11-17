@@ -74,7 +74,7 @@ EVAL_ARGS=(
    --eval-input-key prompt
    --eval-label-key label
    --n-samples-per-eval-prompt 1
-   --eval-max-response-len 16384
+   --eval-max-response-len 32768
    --eval-top-p 0.7
 )
 
