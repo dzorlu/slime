@@ -21,7 +21,7 @@ echo "[start_training] MASTER_ADDR=${MASTER_ADDR}"
 # Launch training and log to /root/train.out
 case "${MODEL_SIZE}" in
   8B)
-    bash scripts/run-tim.sh &> /root/train.out &
+    bash scripts/run-tim-8B.sh &> /root/train.out &
     ;;
   30B)
     bash scripts/run-tim-30B.sh &> /root/train.out &

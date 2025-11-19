@@ -43,9 +43,9 @@ download_repo() {
 : "${MODEL_SIZE:?MODEL_SIZE must be set to 8B or 30B}"
 case "${MODEL_SIZE}" in
   8B)
-    MODEL_REPO="SubconsciousDev/TIM-8b-long-grpo"
-    MODEL_LOCAL_DIR="/lambda/nfs/models/TIM-8b-long-grpo"
-    MODEL_ARGS_SCRIPT="scripts/models/tim-8B.sh"
+    MODEL_REPO="Qwen/Qwen3-8B"
+    MODEL_LOCAL_DIR="/lambda/nfs/models/Qwen3-8B"
+    MODEL_ARGS_SCRIPT="scripts/models/qwen3-8B.sh"
     MODEL_TORCH_DIR="/lambda/nfs/models/model_torch_dist_8B"
     ;;
   30B)
