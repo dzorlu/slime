@@ -69,6 +69,44 @@ bash examples/subc/ray/single_node.sh FS_NAME --model-size 30B
 #TODO sbatch slime/examples/subc/slime_multi_node.sbatch
 ```
 
+Checkpoint → HF conversion
+--------------------------
+When you need to turn a Megatron `iter_xxxxxx` checkpoint back into Hugging Face weights, run the helper script inside the container (same env as training):
+
+1. Make sure Python can see both the repo and Megatron-LM sources:
+   ```
+   export PYTHONPATH=/workspace:/root/Megatron-LM
+   ```
+2. Point the script at the HF base model mirror you already downloaded (matches what `node_setup.sh` uses):
+   ```
+   # Example paths on Lambda
+   export MODEL_LOCAL_DIR=/home/ubuntu/RL-Sydney/models/Qwen3-8B
+   # or: export MODEL_LOCAL_DIR=/home/ubuntu/RL-Sydney/models/Qwen3-30B-A3B
+   ```
+3. Run the converter, passing the model size (8B or 30B), the Megatron checkpoint directory, and an optional HF output dir:
+   ```
+   bash examples/subc/common/convert.sh \
+     8B \
+     /home/ubuntu/RL-Sydney/checkpoints_n1e0bdrp/iter_0000079 \
+     /home/ubuntu/RL-Sydney/hf_iter_79
+   ```
+   Omitting the last argument will default to `<iter_dir>_hf`. Set `FORCE_CONVERT=1` to overwrite existing output or `CHUNK_GB=2` to shrink individual `safetensors` shards.
+4. To upload the resulting folder to the SubconsciousDev Hugging Face org, use the `hf` CLI:
+   ```
+   pip install --user --upgrade "huggingface_hub[hf_transfer]>=0.23"
+   export PATH="$HOME/.local/bin:$PATH"
+   hf auth login   # paste a token with write access
+   export HF_HUB_ENABLE_HF_TRANSFER=1
+
+   hf upload SubconsciousDev/tim-8b-rl-step79 \
+     /home/ubuntu/RL-Sydney/hf_iter_79 \
+     . \
+     --repo-type model \
+     --commit-message "Upload iter_79 HF export" \
+     --force
+   ```
+   Replace the repo name, local directory, and commit message to match your run. Omit `--force` if you only want to upload new files.
+
 View logs: `tail -f slurm-<jobid>.out`
 
 How it works
