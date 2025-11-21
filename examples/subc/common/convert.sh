@@ -1,25 +1,44 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Minimal wrapper: point it at an iter_* checkpoint directory, get an HF folder.
+# Usage: convert.sh <8B|30B> <iter_dir> [output_dir]
 
 usage() {
-  echo "Usage: $0 <iter_dir> [output_dir]" >&2
-  echo "Example: $0 /home/ubuntu/checkpoints/iter_0000039" >&2
+  echo "Usage: $0 <8B|30B> <iter_dir> [output_dir]" >&2
   exit 1
 }
 
-if [ $# -lt 1 ] || [ $# -gt 2 ]; then
+if [ $# -lt 2 ] || [ $# -gt 3 ]; then
   usage
 fi
 
+MODEL_SIZE="$1"
+shift
 ITER_DIR="${1%/}"
+shift
+OUTPUT_DIR="${1:-${ITER_DIR}_hf}"
+
 if [ ! -d "${ITER_DIR}" ]; then
   echo "[convert] ${ITER_DIR} does not exist." >&2
   exit 1
 fi
 
-OUTPUT_DIR="${2:-${ITER_DIR}_hf}"
+case "${MODEL_SIZE}" in
+  8B|8b)
+    MODEL_ARGS_SCRIPT="${MODEL_ARGS_SCRIPT:-scripts/models/qwen3-8B.sh}"
+    MODEL_LOCAL_DIR_DEFAULT="/lambda/nfs/models/Qwen3-8B"
+    ;;
+  30B|30b)
+    MODEL_ARGS_SCRIPT="${MODEL_ARGS_SCRIPT:-scripts/models/qwen3-30B-A3B.sh}"
+    MODEL_LOCAL_DIR_DEFAULT="/lambda/nfs/models/Qwen3-30B-A3B"
+    ;;
+  *)
+    echo "[convert] MODEL_SIZE must be 8B or 30B." >&2
+    exit 1
+    ;;
+esac
+
+MODEL_LOCAL_DIR="${MODEL_LOCAL_DIR:-${MODEL_LOCAL_DIR_DEFAULT}}"
 
 if [ -f /workspace/pyproject.toml ] || [ -f /workspace/setup.py ]; then
   cd /workspace
@@ -27,38 +46,15 @@ else
   cd /root/slime || { echo "[convert] slime repo not found"; exit 1; }
 fi
 
-COMMON_PT="${ITER_DIR}/common.pt"
-if [ ! -f "${COMMON_PT}" ]; then
-  echo "[convert] Missing ${COMMON_PT}; is this a Megatron checkpoint dir?" >&2
+if [ ! -f "${MODEL_ARGS_SCRIPT}" ]; then
+  echo "[convert] MODEL_ARGS_SCRIPT='${MODEL_ARGS_SCRIPT}' not found." >&2
   exit 1
 fi
+source "${MODEL_ARGS_SCRIPT}"
 
-mapfile -t META < <(python3 - "$COMMON_PT" <<'PY'
-import torch, sys
-args = torch.load(sys.argv[1], map_location="cpu")["args"]
-print(getattr(args, "hf_checkpoint", "") or "")
-print(getattr(args, "model_name", "") or "")
-vocab_size = getattr(args, "vocab_size", None)
-print("" if vocab_size in (None, "") else vocab_size)
-PY
-)
-
-HF_CHECKPOINT="${META[0]}"
-MODEL_NAME="${META[1]}"
-VOCAB_SIZE="${META[2]}"
-
-MODEL_SPEC=()
-if [ -n "${HF_CHECKPOINT}" ]; then
-  MODEL_SPEC=(--origin-hf-dir "${HF_CHECKPOINT}")
-elif [ -n "${MODEL_NAME}" ]; then
-  MODEL_SPEC=(--model-name "${MODEL_NAME}")
-else
-  echo "[convert] Could not infer hf_checkpoint/model_name from ${COMMON_PT}; set HF_CHECKPOINT env var." >&2
+if [ ! -d "${MODEL_LOCAL_DIR}" ]; then
+  echo "[convert] MODEL_LOCAL_DIR='${MODEL_LOCAL_DIR}' not found; override MODEL_LOCAL_DIR to point at the HF checkpoint." >&2
   exit 1
-fi
-
-if [ -n "${HF_CHECKPOINT}" ]; then
-  echo "[convert] Using HF assets from ${HF_CHECKPOINT}"
 fi
 
 CHUNK_GB="${CHUNK_GB:-5}"
@@ -73,21 +69,22 @@ CMD=(
   "${PYTHON_BIN}" tools/convert_torch_dist_to_hf.py
   --input-dir "${ITER_DIR}"
   --output-dir "${OUTPUT_DIR}"
+  --origin-hf-dir "${MODEL_LOCAL_DIR}"
   --chunk-size "${CHUNK_SIZE}"
-  "${MODEL_SPEC[@]}"
 )
 
-if [ -n "${VOCAB_SIZE}" ]; then
-  CMD+=(--vocab-size "${VOCAB_SIZE}")
-fi
 if [ "${FORCE_CONVERT:-0}" -eq 1 ]; then
   CMD+=(--force)
 fi
+if [ -n "${VOCAB_SIZE_OVERRIDE:-}" ]; then
+  CMD+=(--vocab-size "${VOCAB_SIZE_OVERRIDE}")
+fi
 
+echo "[convert] MODEL_SIZE=${MODEL_SIZE}"
+echo "[convert] Using MODEL_ARGS_SCRIPT=${MODEL_ARGS_SCRIPT}"
+echo "[convert] Using HF assets from ${MODEL_LOCAL_DIR}"
 echo "[convert] Converting ${ITER_DIR}"
 echo "[convert] Writing HF checkpoint to ${OUTPUT_DIR}"
 echo "[convert] Running: ${CMD[*]}"
 "${CMD[@]}"
 echo "[convert] Done."
-
-
